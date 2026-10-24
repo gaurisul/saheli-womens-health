@@ -22,13 +22,13 @@ export default function MobileNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: '64px',
+        height: '60px',
         backgroundColor: 'var(--bg-card)',
         borderTop: '1px solid var(--border-card)',
         zIndex: 50,
         alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '0 0.25rem',
+        justifyContent: 'space-between',
+        padding: '0 4px',
         boxShadow: '0 -2px 10px rgba(35, 28, 30, 0.05)'
       }}
     >
@@ -50,18 +50,21 @@ export default function MobileNav() {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.2rem',
+              gap: '0.15rem',
               color: isActive ? 'var(--color-berry)' : 'var(--text-muted)',
-              fontSize: '0.68rem',
+              fontSize: '0.62rem',
               fontWeight: isActive ? 700 : 500,
               textDecoration: 'none',
-              padding: '0.35rem 0.5rem',
-              borderRadius: '8px',
+              padding: '0.25rem 0.2rem',
+              minWidth: '44px',
+              minHeight: '44px',
+              borderRadius: '6px',
               backgroundColor: isActive ? 'var(--color-blush)' : 'transparent',
-              transition: 'all 0.15s ease'
+              transition: 'all 0.15s ease',
+              flex: 1
             })}
           >
-            <Icon size={18} />
+            <Icon size={17} />
             <span>{item.label}</span>
           </NavLink>
         );

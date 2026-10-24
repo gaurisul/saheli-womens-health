@@ -47,7 +47,7 @@ export default function TodayDashboard() {
                 </span>
               )}
             </div>
-            <h1 style={{ fontSize: '2.4rem', color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+            <h1 style={{ fontSize: 'clamp(1.65rem, 5vw + 0.3rem, 2.35rem)', color: 'var(--text-primary)', marginBottom: '0.4rem', wordBreak: 'break-word' }}>
               {getGreeting()}, {firstName}
             </h1>
             <p style={{ fontSize: '0.96rem', color: 'var(--text-secondary)', maxWidth: '640px', lineHeight: 1.5 }}>

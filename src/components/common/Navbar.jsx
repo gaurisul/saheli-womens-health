@@ -82,31 +82,20 @@ export default function Navbar() {
           style={{ 
             display: 'inline-flex', 
             alignItems: 'center',
-            gap: '0.65rem',
             textDecoration: 'none'
           }}
-          aria-label="Saheli Home"
+          aria-label="Home"
         >
           <img 
             src="/logo.png" 
-            alt="Saheli Logo" 
+            alt="Logo" 
             style={{ 
               height: '38px', 
               width: 'auto', 
               objectFit: 'contain',
-              display: 'block'
+              display: 'block' 
             }} 
           />
-          <span style={{ 
-            fontFamily: 'var(--font-serif)', 
-            fontSize: '1.45rem', 
-            fontWeight: 600, 
-            color: 'var(--color-berry)', 
-            letterSpacing: '-0.015em',
-            lineHeight: 1
-          }}>
-            Saheli
-          </span>
         </Link>
       </div>
 
@@ -126,7 +115,7 @@ export default function Navbar() {
         {/* Disclaimer Link */}
         <button
           onClick={() => setIsDisclaimerModalOpen(true)}
-          className="btn btn-outline"
+          className="btn btn-outline navbar-disclaimer-btn"
           style={{ fontSize: '0.8rem', padding: '0.38rem 0.75rem' }}
           title="Medical Disclaimer & Scope"
         >
@@ -135,7 +124,7 @@ export default function Navbar() {
         </button>
 
         {/* Persona quick switch */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <div className="navbar-persona-select" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <select
             value={profileId}
             onChange={(e) => switchProfile(e.target.value)}

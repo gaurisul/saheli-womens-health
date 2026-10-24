@@ -237,7 +237,7 @@ export default function DailyCheckinPage() {
                 </span>
               )}
             </div>
-            <h1 style={{ fontSize: '2.2rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+            <h1 style={{ fontSize: 'clamp(1.5rem, 5vw + 0.3rem, 2.2rem)', color: 'var(--text-primary)', marginBottom: '0.25rem', wordBreak: 'break-word' }}>
               Daily Symptom Check-in
             </h1>
             <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', maxWidth: '640px' }}>

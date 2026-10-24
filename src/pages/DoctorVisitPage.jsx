@@ -16,8 +16,7 @@ import {
   Settings2, 
   Share2, 
   Lock, 
-  AlertCircle,
-  HelpCircle
+  AlertCircle
 } from 'lucide-react';
 import { formatDate } from '../data/sampleProfiles';
 
@@ -108,7 +107,7 @@ export default function DoctorVisitPage() {
                 </span>
               )}
             </div>
-            <h1 style={{ fontSize: '2.2rem', color: 'var(--text-primary)' }}>
+            <h1 style={{ fontSize: 'clamp(1.5rem, 5vw + 0.3rem, 2.2rem)', color: 'var(--text-primary)', wordBreak: 'break-word' }}>
               Doctor Visit Preparation & Brief
             </h1>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', maxWidth: '680px' }}>
@@ -521,6 +520,16 @@ export default function DoctorVisitPage() {
 
                   {/* Question Controls (Hidden in Print) */}
                   <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', marginLeft: '0.5rem' }}>
+                    {/* Toggle Report Inclusion */}
+                    <button
+                      type="button"
+                      onClick={() => toggleDoctorQuestionInReport(q.id)}
+                      title={q.inReport !== false ? "Included in brief (click to exclude)" : "Excluded from brief (click to include)"}
+                      aria-label="Toggle inclusion in brief"
+                      style={{ padding: '0.25rem', color: q.inReport !== false ? 'var(--color-berry)' : 'var(--text-muted)' }}
+                    >
+                      {q.inReport !== false ? <Eye size={14} /> : <EyeOff size={14} />}
+                    </button>
                     {/* Move Up */}
                     <button
                       type="button"

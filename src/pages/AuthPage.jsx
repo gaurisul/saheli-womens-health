@@ -38,36 +38,17 @@ export default function AuthPage({ isSignUp = false }) {
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid var(--border-card)', backgroundColor: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link 
-          to="/" 
-          style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center',
-            gap: '0.65rem',
-            textDecoration: 'none'
-          }} 
-          aria-label="Saheli Home"
-        >
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
           <img 
             src="/logo.png" 
-            alt="Saheli Logo" 
+            alt="Logo" 
             style={{ 
-              height: '42px', 
+              height: '46px', 
               width: 'auto', 
               objectFit: 'contain',
-              display: 'block'
+              display: 'block' 
             }} 
           />
-          <span style={{ 
-            fontFamily: 'var(--font-serif)', 
-            fontSize: '1.55rem', 
-            fontWeight: 600, 
-            color: 'var(--color-berry)', 
-            letterSpacing: '-0.015em',
-            lineHeight: 1
-          }}>
-            Saheli
-          </span>
         </Link>
         <Link to="/dashboard" className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
           Skip to Dashboard →

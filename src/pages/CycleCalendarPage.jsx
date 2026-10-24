@@ -84,7 +84,7 @@ export default function CycleCalendarPage() {
                 {currentProfile.name}
               </span>
             </div>
-            <h1 style={{ fontSize: '2.2rem', color: 'var(--text-primary)' }}>
+            <h1 style={{ fontSize: 'clamp(1.5rem, 5vw + 0.3rem, 2.2rem)', color: 'var(--text-primary)', wordBreak: 'break-word' }}>
               Cycle Calendar & History
             </h1>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
