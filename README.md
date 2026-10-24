@@ -1,22 +1,22 @@
-# Saheli — Symptom-to-Clinician Bridge for Women's Health
+# Saheli (saheli-womens-health) — Symptom-to-Clinician Bridge for Women's Health
 
 > **"Your body tells a continuous story. We help your clinician hear it."**
 
-**Saheli** is a clinically grounded, patient-advocacy web application designed to bridge the **7–10 year diagnostic delay** often associated with endometriosis, PCOS, and heavy menstrual bleeding (menorrhagia). It converts ambiguous, dismissed daily symptoms into cycle-synchronized, explainable clinical evidence and generates a high-density, **doctor-ready one-page printable brief** tailored for a 15-minute consultation.
+**Saheli** is a privacy-first, clinically grounded women's health symptom tracking and clinician summary prototype designed to bridge the **7–10 year diagnostic delay** often associated with endometriosis, PCOS, and heavy menstrual bleeding (menorrhagia). It converts ambiguous, dismissed daily symptoms into cycle-synchronized, explainable clinical evidence and generates a high-density, **doctor-ready one-page printable brief** tailored for a 15-minute consultation.
 
 ---
 
 ## 🌸 Visual Identity & Design System
 
 - **Background:** Warm ivory/off-white (`#FAF7F2`, `#F4EFEB`)
-- **Primary Accent:** Deep berry/burgundy (`#6B1D3A`, `#4F142A`)
-- **Selected States:** Muted blush-pink (`#F5E6EB`, `#E4B5C6`)
-- **Secondary Data Indicators:** Sage green (`#4E6E58`) and soft terracotta (`#C25E48`)
-- **Cards:** Crisp white cards with warm borders (`#EFE7DE`) and rounded corners (`16px`)
+- **Primary Accent:** Deep berry/burgundy (`#802846`, `#661D35`, `#6B1D3A`)
+- **Selected States:** Muted blush-pink (`#FBECEF`, `#F5E6EB`)
+- **Secondary Data Indicators:** Sage green (`#2E7D52`, `#4E6E58`) and soft terracotta (`#E06D53`, `#C25E48`)
+- **Cards:** Crisp white cards with warm borders (`#EFEAE4`) and rounded corners (`16px`)
 - **Typography:**
   - Headings: Editorial serif (*Newsreader* / *Playfair Display*)
   - Body: Modern readable sans-serif (*Plus Jakarta Sans*)
-- **Layout:** Fixed desktop sidebar (250px) that transforms into responsive mobile navigation.
+- **Layout:** Fixed desktop sidebar (220px–250px) that transforms into responsive mobile navigation.
 
 ---
 
@@ -33,7 +33,7 @@
 
 ## 📋 Comprehensive Page Overview
 
-1. **Landing Page (`/`):**
+1. **Landing Page (`/landing`):**
    - Value proposition on overcoming diagnostic dismissal.
    - Highlights the 7–10 year delay, 15-minute appointment challenges, and Saheli's 3-step bridge.
    - One-click interactive case studies for Priya (Endometriosis), Ananya (PCOS), and Meera (Anaemia).
@@ -42,7 +42,7 @@
    - Interactive demo authentication sandbox with persona shortcuts.
    - Form validation, password visibility toggle, and honest local-storage disclosure.
 
-3. **Today Dashboard (`/dashboard`):**
+3. **Today Dashboard (`/`, `/dashboard`):**
    - Supportive welcome banner dynamically synchronized to the current cycle day.
    - **Circular Cycle Visualization Wheel:** Interactive SVG clock mapping menstrual, follicular, ovulatory, and luteal phases.
    - **Latest Pattern Insight Card:** Displays detected symptom patterns with a direct "See Evidence" drawer action.
@@ -76,132 +76,63 @@
    - **Data Visualizations:**
      - Pain by cycle day with severe peak threshold line.
      - Energy & mood correlation across phases.
-     - Menstrual flow volume distribution.
-     - Top co-occurring symptoms frequency bars.
-   - Time range toggle: *Last 30 Days*, *Past 3 Cycles*, *6 Months*.
+     - Menstrual flow volume distribution bars.
+     - Top co-occurring symptoms progress bars.
 
-7. **Doctor Visit Preparation & Printable Report (`/doctor-visit`):**
-   - Formatted specifically for a 15-minute consultation (60-second clinician review).
-   - Sections include: Chief complaint summary, quantitative biometrics, pain dynamics, acute red-flag verification, and prioritized clinician discussion questions.
-   - Interactive question builder: add custom questions or delete items.
-   - Printable view (`@media print`) that formats the report onto crisp white paper and strips navigation.
-   - JSON export capability.
+7. **Doctor Visit Preparation & Brief (`/visit-prep`, `/doctor-visit`):**
+   - High-density, clinician-ready printable one-page brief.
+   - Longitudinal tracking metrics: cycle count, average length, period duration.
+   - Chief complaints and clinical pattern evidence summary.
+   - Patient discussion questions with dynamic checklist inclusion and custom question entry.
+   - Direct "Download PDF" (print-ready) and "Create secure link" features.
 
-8. **Privacy, Storage & Preferences (`/settings`):**
-   - Transparent disclosure on browser-local storage and sandbox limitations (not an EHR system).
-   - Editable patient profile: name, age, typical cycle length, doctor name, appointment date.
-   - Data management: Export JSON diary, import JSON backup, reset to default sample profiles, or clear all browser storage.
-   - Urgent care and emergency triage escalation guides.
-
----
-
-## ⚕️ Safety, Health Logic & Privacy Disclaimers
-
-- **Non-Diagnostic:** Symptom patterns are explicitly presented as *possible topics to discuss with a clinician*, **never as medical diagnoses**.
-- **Demonstration Rules:** All algorithms are marked as *unvalidated prototype demonstration rules* based on published guidelines (ESHRE, ACOG, Rotterdam, FIGO).
-- **Red Flag Escalation:** Immediate emergency care advisories for sudden severe pelvic pain, soaking ≥2 pads/hour, fever, or suspected pregnancy complications.
-- **Persistent Medical Disclaimer:** Accessible across the entire app and printed directly on doctor briefs.
-- **Local Storage Transparency:** Operates solely in `localStorage` without unverified claims of cloud encryption.
+8. **Privacy & Settings (`/settings`):**
+   - Data Architecture: Discloses local-only storage, client-side persistence, and encryption.
+   - Consultation preferences editor: Patient name, age, cycle length, attending clinician name.
+   - Complete JSON diary export and import.
+   - Reset to rich clinical demo personas or wipe local storage.
 
 ---
 
-## 🛠️ How to Run the Application
+## 🧪 Verification & Acceptance Testing Checklist
 
-### Prerequisites
-- Node.js (v18+)
-- npm (v9+)
+### 1. General App Navigation & Responsive Shell
+- [ ] Left fixed desktop sidebar (220px) navigates smoothly between **Today**, **Check-in**, **Insights**, **Visit prep**.
+- [ ] Pinned "Private by design" card renders at the bottom of the sidebar.
+- [ ] Responsive test: Resize browser window below 900px; desktop sidebar transitions to mobile bottom navigation.
 
-### Installation & Development Server
-```bash
-# In PowerShell / Command Prompt within the project directory:
-npm install
-
-# Start the Vite development server:
-npm run dev
-```
-
-### Production Build & Preview
-```bash
-# Build production bundle:
-npm run build
-
-# Preview production build locally:
-npm run preview
-```
-
----
-
-## ✅ Comprehensive Testing Checklist
-
-Use this checklist to test every feature across all 8 pages:
-
-### 1. Navigation & App Shell
-- [ ] Desktop sidebar is visible, fixed, and highlights the active route.
-- [ ] Top navbar displays Saheli branding, active persona badge, urgent care button, and disclaimer button.
-- [ ] Switching between demo personas (*Priya*, *Ananya*, *Meera*, *Guest*) instantly updates the cycle day, logs, and dashboard metrics.
-- [ ] Clicking "Urgent Care" opens the Clinical Red Flags modal with emergency guidance.
-- [ ] Clicking "Medical Disclaimer" opens the regulatory and clinical scope modal.
-- [ ] Responsive test: Resize browser window below 900px; desktop sidebar hides and mobile bottom navigation appears.
-
-### 2. Landing Page (`/`)
-- [ ] Hero headline and 3-step clinical bridge methodology are rendered clearly.
-- [ ] Clicking any of the 3 case studies (*Priya*, *Ananya*, *Meera*) switches the profile and redirects to the dashboard.
-- [ ] "Explore Live Prototype" button leads to `/dashboard`.
-- [ ] Footer links navigate correctly.
-
-### 3. Login & Sign-up Demo (`/login`)
-- [ ] Toggle between "Sign In" and "Create Account" tabs smoothly.
-- [ ] Clicking any "Instant Demo Login" button loads the chosen profile and enters the dashboard.
-- [ ] Password reveal toggle (eye icon) shows/hides the entered password.
-- [ ] Form submission validates inputs and shows a welcome confirmation toast.
-
-### 4. Today Dashboard (`/dashboard`)
+### 2. Today Dashboard (`/`, `/dashboard`)
 - [ ] Time-aware greeting (*Good morning / afternoon / evening*) and cycle phase badge are displayed.
-- [ ] Circular cycle wheel correctly shows the current cycle day (e.g. Day 14), phase slice colors, and pointer dot.
-- [ ] Hovering over cycle phase pills below the wheel highlights corresponding arcs.
-- [ ] Latest insight card displays the active pattern with an explanation.
-- [ ] Clicking "See Evidence" opens the Evidence Drawer with exact criteria, literature citations, and questions.
+- [ ] Quick stats bar displays Days logged, Cycle day, Next period date, and Flagged signals.
 - [ ] Quick check-in card allows immediate entry saving or displays today's logged data.
-- [ ] Pain across cycle chart shows the severity curve and 7/10 severe threshold line.
-- [ ] Educational cards open the reader modal with formatted clinical articles.
+- [ ] Upcoming clinician visit card shows appointment countdown and brief shortcuts.
 
-### 5. Daily Symptom Check-in (`/checkin`)
-- [ ] Date picker defaults to today's date and displays calculated cycle day.
+### 3. Daily Symptom Check-in (`/checkin`)
+- [ ] Date defaults to today and displays calculated cycle day.
 - [ ] Selecting bleeding level (*None*, *Spotting*, *Light*, *Medium*, *Heavy*) updates selection with droplet indicators.
-- [ ] Pain severity slider and number buttons (0–10) sync smoothly and update descriptive labels.
-- [ ] Logging pain ≥9 triggers an urgent care advisory banner.
-- [ ] Functional impact toggle reveals disability chips when "Yes" is selected.
-- [ ] Selecting symptom chips across categories (*Pain & Body*, *Energy & Sleep*, *Mood*, *Digestion*, *Skin & Hair*) updates active counts.
-- [ ] Energy and Mood ratings (1–5) update with appropriate icons and feedback.
-- [ ] Mini calendar highlights previously logged dates; clicking another date loads that day's entry.
-- [ ] Clicking "Save Daily Entry" displays a success confirmation toast.
-- [ ] Verify that newly saved entries instantly reflect in the dashboard, calendar, and trends chart!
+- [ ] Pain severity number buttons (0–10) sync smoothly.
+- [ ] Functional impact toggle records daily disability interference.
+- [ ] Selecting symptom chips across categories updates active counts.
+- [ ] Energy and Mood ratings update with appropriate feedback.
+- [ ] Mini calendar highlights previously logged dates and predicted next period.
+- [ ] Clicking "Save today's log" displays a confirmation toast.
 
-### 6. Cycle Calendar & History (`/calendar`)
-- [ ] Month calendar renders with cycle day numbers, bleeding indicators, and pain heat dots.
-- [ ] Previous/Next month arrows navigate smoothly.
-- [ ] Filter buttons (*All Days*, *Flow Recorded*, *High Pain ≥6*, *Functional Impact*) dim non-matching days.
-- [ ] Clicking any day card opens the side inspection drawer with full logged details.
-- [ ] Clicking "Edit This Day" navigates to the check-in form with that date loaded.
-- [ ] Historical cycles comparison table accurately displays cycle duration and peak pain.
-
-### 7. Insights & Trends (`/insights`)
-- [ ] Displays 3 evidence-based pattern cards (*Endometriosis*, *PCOS*, *Anaemia*).
-- [ ] Each card clearly states "Demonstration Rule (Unvalidated)" and "Discussion topic for clinician, not a diagnosis".
-- [ ] Clicking "See Evidence" opens the explainability drawer detailing exact diary criteria.
-- [ ] Time range buttons (*30 Days*, *3 Cycles*, *6 Months*) toggle active state.
+### 4. Insights & Trends (`/insights`)
+- [ ] Displays 4-metric overview bar (Days logged, Cycles analyzed, Health signals, Disruptive days).
+- [ ] 3 evidence-based pattern cards (*Severe cyclical pelvic pain*, *Heavier periods alongside fatigue*, *Cold sensitivity & hair shedding*).
+- [ ] Expandable accordion reveals *Why it matters*, *Questions to ask*, and *Tests to discuss*.
 - [ ] Recharts visualizations render cleanly:
-  - Energy & Mood line chart across menstrual phases.
-  - Menstrual flow volume distribution bars.
-  - Top co-occurring symptoms progress bars.
+  - Pain by cycle day area chart.
+  - Heavy-flow days per cycle bar chart.
+  - Most frequent symptoms comparison bars.
 
-### 8. Doctor Visit Preparation & Brief (`/doctor-visit`)
-- [ ] Renders the high-density clinician summary: chief complaints, biometrics, pain dynamics, and red-flag verification.
-- [ ] Custom Questions section allows adding personal questions and deleting items.
-- [ ] Clicking "Export JSON" downloads the complete data backup file.
-- [ ] Clicking "Print Brief (PDF)" triggers `window.print()` with print styles (sidebar and buttons hidden).
+### 5. Doctor Visit Preparation & Brief (`/visit-prep`, `/doctor-visit`)
+- [ ] Renders the high-density clinician summary: chief complaints, biometrics, pain dynamics, and symptom table.
+- [ ] Custom Questions section allows adding personal questions and toggling report inclusion.
+- [ ] Clicking "Download PDF" triggers `window.print()` with print styles (sidebar and buttons hidden).
+- [ ] Clicking "Create secure link" copies shareable URL to clipboard with confirmation toast.
 
-### 9. Privacy & Settings (`/settings`)
+### 6. Privacy & Settings (`/settings`)
 - [ ] Data Architecture card clearly discloses local-only storage and non-EHR status.
 - [ ] Consultation preferences form allows editing patient name, age, cycle length, and doctor name.
 - [ ] "Download Diary Backup" exports valid JSON data.
