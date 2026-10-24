@@ -15,6 +15,8 @@ import {
   Loader2
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import SafetyAlertBanner from '../components/common/SafetyAlertBanner';
+import { evaluateSafetyFlags } from '../services/safetyRules';
 
 // Validates a real calendar date string in YYYY-MM-DD format
 function isValidDateStr(dateStr) {
@@ -35,7 +37,9 @@ export default function DailyCheckinPage() {
     saveEntry,
     isSavingEntry,
     deleteEntry,
-    getCycleDayInfo
+    getCycleDayInfo,
+    setIsUrgentModalOpen,
+    showToast
   } = useApp();
 
   // Selected date defaults to today
@@ -62,6 +66,12 @@ export default function DailyCheckinPage() {
 
   // Existing entry for the selected date
   const existingEntry = logs[selectedDate];
+
+  // Evaluate safety flags for the selected record
+  const activeFlagsForDate = useMemo(() => {
+    if (!existingEntry) return [];
+    return evaluateSafetyFlags(existingEntry, logs);
+  }, [existingEntry, logs]);
 
   // Populate form when selectedDate changes or existingEntry loads
   useEffect(() => {
@@ -177,10 +187,22 @@ export default function DailyCheckinPage() {
       notes: notes.trim()
     };
 
+    // Evaluate rule-based safety flags upon save
+    const detectedFlags = evaluateSafetyFlags(entryData, logs);
+    const urgentFlag = detectedFlags.find((f) => f.severity === 'urgent');
+    const seekCareFlag = detectedFlags.find((f) => f.severity === 'seek-care-soon');
+
     const res = await saveEntry(entryData);
     if (res?.success) {
-      setSaveSuccessMessage(`Check-in for ${selectedDate} saved successfully.`);
-      setTimeout(() => setSaveSuccessMessage(null), 4000);
+      if (urgentFlag) {
+        setIsUrgentModalOpen(true);
+        showToast(`Safety Notice: ${urgentFlag.title}. Please review urgent triage guidance.`, 'error');
+      } else if (seekCareFlag) {
+        showToast(`Advisory: ${seekCareFlag.title}. Recommended to discuss with a clinician.`, 'info');
+      } else {
+        setSaveSuccessMessage(`Check-in for ${selectedDate} saved successfully.`);
+        setTimeout(() => setSaveSuccessMessage(null), 4000);
+      }
     }
   };
 
@@ -303,6 +325,13 @@ export default function DailyCheckinPage() {
             </button>
           </div>
         </div>
+
+        {/* Safety Guidance Banner for Current Date */}
+        {activeFlagsForDate.length > 0 && (
+          <div style={{ marginTop: '1rem' }}>
+            <SafetyAlertBanner flags={activeFlagsForDate} />
+          </div>
+        )}
 
         {/* Success Alert Banner */}
         {saveSuccessMessage && (

@@ -21,6 +21,7 @@ import {
   Info
 } from 'lucide-react';
 import { formatDate } from '../data/sampleProfiles';
+import { getActiveSafetyAlerts } from '../services/safetyRules';
 
 export default function DoctorVisitPage() {
   const {
@@ -146,6 +147,11 @@ export default function DoctorVisitPage() {
       text: parts.join(' ')
     };
   }, [currentProfile.logs, summaryMetrics]);
+
+  // System-generated rule-based safety alerts (separate from patient narrative)
+  const systemSafetyAlerts = useMemo(() => {
+    return getActiveSafetyAlerts(currentProfile.logs || {});
+  }, [currentProfile.logs]);
 
   // Red-flag triage review derived from actual patient records (Task 2C)
   const redFlagAssessments = useMemo(() => {
@@ -498,6 +504,37 @@ export default function DoctorVisitPage() {
               Observational diary check · Not a clinical examination
             </span>
           </div>
+
+          {/* System-Generated Observational Safety Flags (Distinct from Patient-Reported Information) */}
+          {systemSafetyAlerts.length > 0 && (
+            <div style={{
+              marginBottom: '0.85rem',
+              padding: '0.85rem 1rem',
+              backgroundColor: '#FFF5F5',
+              border: '1px solid var(--color-critical-border, #FED7D7)',
+              borderRadius: '8px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-critical, #C53030)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                  System-Generated Observational Safety Flags (Automated Rule Triage)
+                </span>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                  Automated analysis · Strictly separate from patient self-reported notes
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                {systemSafetyAlerts.map((flag) => (
+                  <div key={flag.id} style={{ fontSize: '0.76rem', color: '#742A2A', lineHeight: 1.45 }}>
+                    <strong>• {flag.title} ({flag.triggeredDate}):</strong> {flag.reason}{' '}
+                    <span style={{ fontWeight: 600, color: 'var(--color-critical)' }}>Clinical advisory: {flag.action}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', display: 'block', marginTop: '2px' }}>
+                      Triggered by recorded field(s): {flag.triggeredFields.join(', ')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.65rem' }}>
             {redFlagAssessments.map((flag, idx) => (

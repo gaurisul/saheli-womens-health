@@ -9,6 +9,8 @@ import EduCard from '../components/dashboard/EduCard';
 import { Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { findPeriodStarts } from '../utils/cycleCalculations';
+import SafetyAlertBanner from '../components/common/SafetyAlertBanner';
+import { getActiveSafetyAlerts } from '../services/safetyRules';
 
 export default function TodayDashboard() {
   const {
@@ -21,6 +23,11 @@ export default function TodayDashboard() {
   } = useApp();
 
   // Task 7: Distinguish Current Cycle Metrics from Lifetime History
+  // Observational Rule-Based Safety Alerts
+  const activeSafetyFlags = useMemo(() => {
+    return getActiveSafetyAlerts(logs);
+  }, [logs]);
+
   const [metricScope, setMetricScope] = useState('cycle'); // 'cycle' | 'all'
   const periodStarts = useMemo(() => findPeriodStarts(logs), [logs]);
 
@@ -190,6 +197,9 @@ export default function TodayDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Persistent Observational Safety Alert Banner */}
+      <SafetyAlertBanner flags={activeSafetyFlags} />
 
       {/* Main Dashboard Grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
