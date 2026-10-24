@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export default function LandingPage() {
   const { switchProfile } = useApp();
   const navigate = useNavigate();
@@ -951,7 +953,7 @@ export default function LandingPage() {
               <strong>Medical Disclaimer:</strong> Saheli is an observational symptom diary and patient advocacy communication aid, not a diagnostic medical device. Pattern recognition algorithms are demonstration rules based on clinical literature guidelines (ESHRE, ACOG, FIGO) and are unvalidated by formal clinical trials. Saheli does not provide medical diagnoses, treatment plans, or emergency care. Always seek the advice of a qualified healthcare provider with questions regarding a medical condition.
             </p>
             <p style={{ margin: 0 }}>
-              © {new Date().getFullYear()} Saheli Women's Health. Stored locally in your browser sandbox.
+              © {CURRENT_YEAR} Saheli Women's Health. Stored locally in your browser sandbox.
             </p>
           </div>
 

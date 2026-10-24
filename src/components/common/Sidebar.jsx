@@ -135,7 +135,7 @@ export default function Sidebar() {
           <NavLink
             to="/"
             onClick={handleNavClick}
-            style={({ isActive }) => ({
+            style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
@@ -144,7 +144,7 @@ export default function Sidebar() {
               fontSize: '0.84rem',
               color: 'var(--text-muted)',
               transition: 'all 0.15s ease'
-            })}
+            }}
           >
             <Sparkles size={16} />
             <span>Saheli Overview & Intro</span>
@@ -152,7 +152,7 @@ export default function Sidebar() {
           <NavLink
             to="/login"
             onClick={handleNavClick}
-            style={({ isActive }) => ({
+            style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
@@ -161,7 +161,7 @@ export default function Sidebar() {
               fontSize: '0.84rem',
               color: 'var(--text-muted)',
               transition: 'all 0.15s ease'
-            })}
+            }}
           >
             <User size={16} />
             <span>Demo Auth & Personas</span>
