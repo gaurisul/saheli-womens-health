@@ -17,6 +17,7 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import SafetyAlertBanner from '../components/common/SafetyAlertBanner';
 import { evaluateSafetyFlags } from '../services/safetyRules';
+import VoiceLogButton from '../components/checkin/VoiceLogButton';
 
 // Validates a real calendar date string in YYYY-MM-DD format
 function isValidDateStr(dateStr) {
@@ -134,6 +135,43 @@ export default function DailyCheckinPage() {
 
   // Dynamically computed cycle info using single source of truth
   const cycleInfo = getCycleDayInfo(selectedDate);
+
+  // Voice Symptom Logging handler (Instruction #3 & #5: overwrite only mentioned fields, append notes)
+  const handleApplyVoiceLog = (parsed, meta) => {
+    if (!parsed) return;
+
+    if (parsed.bleeding !== undefined) {
+      setBleeding(parsed.bleeding);
+    }
+    if (parsed.painScore !== undefined) {
+      setPainScore(parsed.painScore);
+    }
+    if (parsed.functionalImpact !== undefined) {
+      setHasFunctionalImpact(parsed.functionalImpact);
+    }
+    if (parsed.impactTypes && parsed.impactTypes.length > 0) {
+      setImpactTypes((prev) => [...new Set([...prev, ...parsed.impactTypes])]);
+    }
+    if (parsed.symptoms && parsed.symptoms.length > 0) {
+      setSelectedSymptoms((prev) => [...new Set([...prev, ...parsed.symptoms])]);
+    }
+    if (parsed.energyRating !== undefined) {
+      setEnergyRating(parsed.energyRating);
+    }
+    if (parsed.moodRating !== undefined) {
+      setMoodRating(parsed.moodRating);
+    }
+    if (parsed.notes) {
+      setNotes((prev) => {
+        const trimmed = (prev || '').trim();
+        if (!trimmed) return parsed.notes;
+        return `${trimmed}\n${parsed.notes}`;
+      });
+    }
+
+    const estimatedNotice = meta?.isPainEstimated ? ' (Pain score estimated from descriptive words — please review)' : '';
+    showToast(`Form pre-filled from voice transcript${estimatedNotice}. Please review and click Save.`, 'info');
+  };
 
   // Safe date selection with unsaved changes guard
   const handleRequestDateChange = (newDate) => {
@@ -284,8 +322,10 @@ export default function DailyCheckinPage() {
             </p>
           </div>
 
-          {/* Quick Date Switcher & Easy-Reach Save Button */}
+          {/* Quick Date Switcher, Voice Logging & Easy-Reach Save Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <VoiceLogButton onApplyParsed={handleApplyVoiceLog} disabled={isSavingEntry} />
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-card)' }}>
               <CalendarIcon size={16} color="var(--color-berry)" />
               <input

@@ -10,7 +10,8 @@ import {
   Save,
   Lock,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  Mic
 } from 'lucide-react';
 
 export default function PrivacySettingsPage() {
@@ -158,6 +159,16 @@ export default function PrivacySettingsPage() {
                 </div>
                 <p style={{ fontSize: '0.82rem', margin: 0 }}>
                   You can export your complete health history as an open JSON file at any time, import previous backups, or delete all stored records with one click.
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
+                <div style={{ fontWeight: 600, color: 'var(--color-berry)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Mic size={15} />
+                  <span>Speech Recognition & Cloud Audio Notice</span>
+                </div>
+                <p style={{ fontSize: '0.82rem', margin: 0 }}>
+                  Voice check-in uses your browser's built-in Web Speech API. In Chrome and Edge, spoken audio is streamed to the browser vendor's cloud service for speech-to-text transcription. Saheli itself does not record, process, or store your voice audio on any server; all symptom rule parsing is performed locally in your browser.
                 </p>
               </div>
             </div>
