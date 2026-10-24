@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { 
-  ShieldCheck, 
-  Download, 
-  Upload, 
-  RotateCcw, 
-  Trash2, 
-  User, 
-  Save, 
-  Lock
+import {
+  ShieldCheck,
+  Download,
+  Upload,
+  RotateCcw,
+  Trash2,
+  User,
+  Save,
+  Lock,
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 
 export default function PrivacySettingsPage() {
-  const { 
-    currentProfile, 
-    updateProfile, 
-    exportDataJSON, 
-    importDataJSON, 
-    resetToFactorySampleData, 
-    clearAllData, 
+  const {
+    currentProfile,
+    updateProfile,
+    exportDataJSON,
+    importDataJSON,
+    resetToFactorySampleData,
+    clearAllData,
     profileId
   } = useApp();
 
@@ -56,6 +58,11 @@ export default function PrivacySettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!window.confirm(`Import diary records from "${file.name}"? This will restore and update entries in your browser's local diary.`)) {
+      e.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result;
@@ -65,6 +72,12 @@ export default function PrivacySettingsPage() {
     };
     reader.readAsText(file);
     e.target.value = '';
+  };
+
+  const handleResetDemoData = () => {
+    if (window.confirm('Reset all demonstration profiles (Amara, Priya, Ananya, Meera) back to initial default values? Any edits to demo profiles will be reset.')) {
+      resetToFactorySampleData();
+    }
   };
 
   const handleClearAll = () => {
@@ -86,12 +99,12 @@ export default function PrivacySettingsPage() {
           Privacy, Storage & Preferences
         </h1>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          Complete transparency over where your data resides, demo backups, and consultation profile settings.
+          Complete transparency over where your data resides, local backups, and consultation profile settings.
         </p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-        
+
         {/* Transparency & Security Architecture Disclosure */}
         <div className="saheli-card" style={{ borderLeft: '4px solid var(--color-berry)' }}>
           <div className="card-header-row">
@@ -115,6 +128,26 @@ export default function PrivacySettingsPage() {
                 </div>
                 <p style={{ fontSize: '0.82rem', margin: 0 }}>
                   We do not transmit your symptom diaries, notes, or patient names to remote advertising or EHR servers. Data does not leave this computer.
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
+                <div style={{ fontWeight: 600, color: 'var(--color-berry)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <AlertTriangle size={15} />
+                  <span>Local-Only Storage (Unencrypted)</span>
+                </div>
+                <p style={{ fontSize: '0.82rem', margin: 0 }}>
+                  Browser <code style={{ fontSize: '0.75rem' }}>localStorage</code> is standard unencrypted web storage. Clearing browser history, cookies, or site cache will erase your diary. Export JSON backups to keep permanent copies.
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
+                <div style={{ fontWeight: 600, color: 'var(--color-berry)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <RefreshCw size={15} />
+                  <span>No Cross-Device Sync</span>
+                </div>
+                <p style={{ fontSize: '0.82rem', margin: 0 }}>
+                  Saheli does not connect to cloud accounts or sync across devices automatically. To transfer data to another phone or computer, use the JSON Export/Import tools below.
                 </p>
               </div>
 
@@ -249,7 +282,7 @@ export default function PrivacySettingsPage() {
                 Export JSON Diary
               </h4>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                Download your symptom entries, custom clinician questions, and cycle metrics as a machine-readable JSON backup.
+                Download your symptom entries, custom clinician questions, and cycle metrics as an open, unencrypted JSON backup.
               </p>
               <button
                 type="button"
@@ -267,7 +300,7 @@ export default function PrivacySettingsPage() {
                 Import JSON Backup
               </h4>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                Restore diary records from a previously exported Saheli JSON backup file.
+                Restore diary records from a previously exported Saheli JSON backup file. Confirms before replacing local records.
               </p>
               <label className="btn btn-secondary" style={{ fontSize: '0.84rem', cursor: 'pointer', display: 'inline-flex' }}>
                 <Upload size={14} />
@@ -290,7 +323,7 @@ export default function PrivacySettingsPage() {
               </p>
               <button
                 type="button"
-                onClick={resetToFactorySampleData}
+                onClick={handleResetDemoData}
                 className="btn btn-outline"
                 style={{ fontSize: '0.84rem' }}
               >
@@ -304,7 +337,7 @@ export default function PrivacySettingsPage() {
                 Erase All Local Storage
               </h4>
               <p style={{ fontSize: '0.82rem', color: '#7F1D1D', marginBottom: '1rem' }}>
-                Permanently purge all stored entries, cookies, and local session caches from this browser.
+                Permanently purge all stored entries, custom questions, and profile records from this browser's local storage.
               </p>
               <button
                 type="button"

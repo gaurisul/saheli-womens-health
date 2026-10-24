@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import CycleWheel from '../components/dashboard/CycleWheel';
 import InsightCard from '../components/dashboard/InsightCard';
@@ -8,15 +8,77 @@ import VisitPrepCard from '../components/dashboard/VisitPrepCard';
 import EduCard from '../components/dashboard/EduCard';
 import { Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { findPeriodStarts } from '../utils/cycleCalculations';
 
 export default function TodayDashboard() {
-  const { 
-    currentProfile, 
-    summaryMetrics, 
-    todayCycleMetrics, 
-    estimatedNextPeriod, 
-    profileId 
+  const {
+    currentProfile,
+    summaryMetrics,
+    todayCycleMetrics,
+    estimatedNextPeriod,
+    profileId,
+    logs
   } = useApp();
+
+  // Task 7: Distinguish Current Cycle Metrics from Lifetime History
+  const [metricScope, setMetricScope] = useState('cycle'); // 'cycle' | 'all'
+  const periodStarts = useMemo(() => findPeriodStarts(logs), [logs]);
+
+  const { currentCycleMetrics, cycleBoundaryNote } = useMemo(() => {
+    const sortedDates = Object.keys(logs).sort();
+    if (sortedDates.length === 0) {
+      return {
+        currentCycleMetrics: { loggedDays: 0, avgPain: '0.0', severeDays: 0 },
+        cycleBoundaryNote: 'No entries recorded in diary yet.'
+      };
+    }
+
+    if (periodStarts.length === 0) {
+      const entries = Object.values(logs);
+      const painScores = entries
+        .map((e) => Number(e.painScore))
+        .filter((s) => !isNaN(s) && s > 0);
+      const avg = painScores.length > 0
+        ? (painScores.reduce((a, b) => a + b, 0) / painScores.length).toFixed(1)
+        : '0.0';
+      const severe = entries.filter((e) => Number(e.painScore) >= 7).length;
+
+      return {
+        currentCycleMetrics: { loggedDays: entries.length, avgPain: avg, severeDays: severe },
+        cycleBoundaryNote: 'No menstrual Day 1 logged; showing active diary records (unrecorded days are not counted as symptom-free).'
+      };
+    }
+
+    const latestStart = periodStarts[periodStarts.length - 1];
+    const currentEntries = Object.entries(logs)
+      .filter(([d]) => d >= latestStart)
+      .map(([, v]) => v);
+
+    const painScores = currentEntries
+      .map((e) => Number(e.painScore))
+      .filter((s) => !isNaN(s) && s > 0);
+    const avg = painScores.length > 0
+      ? (painScores.reduce((a, b) => a + b, 0) / painScores.length).toFixed(1)
+      : '0.0';
+    const severe = currentEntries.filter((e) => Number(e.painScore) >= 7).length;
+
+    return {
+      currentCycleMetrics: {
+        loggedDays: currentEntries.length,
+        avgPain: avg,
+        severeDays: severe
+      },
+      cycleBoundaryNote: `Current cycle started ${latestStart} (${currentEntries.length} days logged; unrecorded days are not counted as symptom-free).`
+    };
+  }, [logs, periodStarts]);
+
+  const displayedMetrics = metricScope === 'cycle'
+    ? currentCycleMetrics
+    : {
+        loggedDays: summaryMetrics.totalLoggedDays,
+        avgPain: summaryMetrics.averagePainScore || '0.0',
+        severeDays: summaryMetrics.severePainDaysCount
+      };
 
   // Dynamic time greeting
   const getGreeting = () => {
@@ -55,33 +117,75 @@ export default function TodayDashboard() {
             </p>
           </div>
 
-          {/* Quick Real Metrics Header Pills */}
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '0.65rem 1rem', textAlign: 'center', minWidth: '95px' }}>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>
-                Diary Days Logged
-              </span>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-berry)' }}>
-                {summaryMetrics.totalLoggedDays}
+          {/* Quick Real Metrics Header Pills with Cycle vs Lifetime Scope */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+            {/* Scope switcher */}
+            <div style={{ display: 'flex', gap: '0.25rem', backgroundColor: 'var(--bg-secondary)', padding: '2px', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
+              <button
+                type="button"
+                onClick={() => setMetricScope('cycle')}
+                style={{
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  backgroundColor: metricScope === 'cycle' ? 'var(--color-berry)' : 'transparent',
+                  color: metricScope === 'cycle' ? '#FFFFFF' : 'var(--text-secondary)',
+                  cursor: 'pointer'
+                }}
+              >
+                Current Cycle
+              </button>
+              <button
+                type="button"
+                onClick={() => setMetricScope('all')}
+                style={{
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  backgroundColor: metricScope === 'all' ? 'var(--color-berry)' : 'transparent',
+                  color: metricScope === 'all' ? '#FFFFFF' : 'var(--text-secondary)',
+                  cursor: 'pointer'
+                }}
+              >
+                All-Time History
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '0.65rem 1rem', textAlign: 'center', minWidth: '95px' }}>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>
+                  {metricScope === 'cycle' ? 'Cycle Days Logged' : 'All-Time Days Logged'}
+                </span>
+                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-berry)' }}>
+                  {displayedMetrics.loggedDays}
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '0.65rem 1rem', textAlign: 'center', minWidth: '95px' }}>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>
+                  {metricScope === 'cycle' ? 'Cycle Avg Pain' : 'All-Time Avg Pain'}
+                </span>
+                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: Number(displayedMetrics.avgPain) >= 6 ? 'var(--color-terracotta)' : 'var(--color-sage-dark)' }}>
+                  {displayedMetrics.avgPain}/10
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '0.65rem 1rem', textAlign: 'center', minWidth: '95px' }}>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>
+                  {metricScope === 'cycle' ? 'Cycle Severe Days (≥7)' : 'All-Time Severe Days (≥7)'}
+                </span>
+                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: displayedMetrics.severeDays > 0 ? 'var(--color-terracotta)' : 'var(--text-muted)' }}>
+                  {displayedMetrics.severeDays}
+                </div>
               </div>
             </div>
 
-            <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '0.65rem 1rem', textAlign: 'center', minWidth: '95px' }}>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>
-                Avg Pain (Logged)
-              </span>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: Number(summaryMetrics.averagePainScore) >= 6 ? 'var(--color-terracotta)' : 'var(--color-sage-dark)' }}>
-                {summaryMetrics.averagePainScore || '0'}/10
-              </div>
-            </div>
-
-            <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '0.65rem 1rem', textAlign: 'center', minWidth: '95px' }}>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>
-                Severe Pain Days (≥7)
-              </span>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: summaryMetrics.severePainDaysCount > 0 ? 'var(--color-terracotta)' : 'var(--text-muted)' }}>
-                {summaryMetrics.severePainDaysCount}
-              </div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'right' }}>
+              {metricScope === 'cycle' ? cycleBoundaryNote : 'Aggregated lifetime statistics across all diary records.'}
             </div>
           </div>
         </div>
@@ -89,10 +193,10 @@ export default function TodayDashboard() {
 
       {/* Main Dashboard Grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-        
+
         {/* Top Row: Cycle Wheel + Latest Insight Card */}
         <div className="dashboard-two-col">
-          
+
           {/* Cycle Overview Card with Circular Wheel */}
           <div className="saheli-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div className="card-header-row">
@@ -105,7 +209,7 @@ export default function TodayDashboard() {
               </span>
             </div>
 
-            <CycleWheel 
+            <CycleWheel
               cycleDay={todayCycleMetrics.cycleDay}
               totalCycleLength={Number(currentProfile.typicalCycleLength) || 28}
               currentPhase={todayCycleMetrics.phase}
@@ -145,10 +249,10 @@ export default function TodayDashboard() {
         </div>
 
         {/* Fictional Sample Data Banner */}
-        <div style={{ 
-          backgroundColor: 'var(--bg-secondary)', 
-          border: '1px solid var(--border-card)', 
-          borderRadius: '12px', 
+        <div style={{
+          backgroundColor: 'var(--bg-secondary)',
+          border: '1px solid var(--border-card)',
+          borderRadius: '12px',
           padding: '1rem 1.25rem',
           display: 'flex',
           alignItems: 'center',

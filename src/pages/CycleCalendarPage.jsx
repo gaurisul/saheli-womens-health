@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
-import { 
-  Calendar as CalendarIcon, 
-  ChevronLeft, 
-  ChevronRight, 
-  Droplet, 
-  Clock, 
-  Filter, 
-  PlusCircle 
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Droplet,
+  Clock,
+  Filter,
+  PlusCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { findPeriodStarts, getDaysDiff } from '../utils/cycleCalculations';
 
 export default function CycleCalendarPage() {
   const { logs, currentProfile } = useApp();
@@ -55,11 +56,125 @@ export default function CycleCalendarPage() {
     return true;
   };
 
-  // Cycle statistics
-  const loggedEntries = Object.values(logs);
-  const bleedingDays = loggedEntries.filter((e) => e.bleeding && e.bleeding !== 'None');
-  const highPainDays = loggedEntries.filter((e) => (e.painScore || 0) >= 6);
-  const impactedDays = loggedEntries.filter((e) => e.functionalImpact === true);
+  // Task 4: Derive historical cycles from logged period starts
+  const cycleHistory = useMemo(() => {
+    const periodStarts = findPeriodStarts(logs);
+    const sortedDates = Object.keys(logs).sort();
+
+    if (sortedDates.length === 0) {
+      return {
+        cycles: [],
+        hasData: false,
+        note: 'No symptom records found in diary. Log check-ins to track cycle history.'
+      };
+    }
+
+    if (periodStarts.length === 0) {
+      return {
+        cycles: [],
+        hasData: false,
+        note: 'No period start dates (Day 1 with bleeding) recorded in diary. Menstrual start dates are needed to calculate completed cycles.'
+      };
+    }
+
+    const cycles = [];
+    const typicalLength = Number(currentProfile.typicalCycleLength) || 28;
+
+    // 1. Current Cycle (from latest period start to latest logged date)
+    const latestStart = periodStarts[periodStarts.length - 1];
+    const latestLogDate = sortedDates[sortedDates.length - 1];
+    const currentDurationDays = getDaysDiff(latestStart, latestLogDate) + 1;
+
+    // Entries in current cycle: date >= latestStart
+    const currentCycleEntries = Object.entries(logs)
+      .filter(([d]) => d >= latestStart)
+      .map(([d, data]) => ({ date: d, ...data }));
+
+    const currentBleeding = currentCycleEntries.filter((e) => e.bleeding && e.bleeding !== 'None');
+    const currentScores = currentCycleEntries
+      .map((e) => Number(e.painScore))
+      .filter((s) => !isNaN(s) && s > 0);
+    const currentPeakPain = currentScores.length > 0 ? Math.max(...currentScores) : null;
+    const currentImpact = currentCycleEntries.filter((e) => e.functionalImpact === true);
+
+    let currentPattern = 'In progress';
+    if (currentPeakPain && currentPeakPain >= 7) currentPattern = 'Severe pain (≥7)';
+    else if (currentBleeding.filter((e) => e.bleeding === 'Heavy').length >= 3) currentPattern = 'Heavy flow';
+
+    cycles.push({
+      name: 'Current Cycle (Active)',
+      isCurrent: true,
+      isComplete: false,
+      startDate: latestStart,
+      endDate: null,
+      durationLabel: `Day ${currentDurationDays} (Ongoing, est. ~${typicalLength}d)`,
+      bleedingDaysCount: currentBleeding.length,
+      peakPain: currentPeakPain !== null ? `${currentPeakPain} / 10` : 'None logged',
+      impactDaysCount: currentImpact.length,
+      patternFlag: currentPattern,
+      badgeType: currentPeakPain && currentPeakPain >= 7 ? 'badge-terracotta' : 'badge-berry'
+    });
+
+    // 2. Preceding Completed Cycles: between periodStarts[i] and periodStarts[i+1]
+    for (let i = periodStarts.length - 2; i >= 0; i--) {
+      const start = periodStarts[i];
+      const nextStart = periodStarts[i + 1];
+      const cycleDuration = getDaysDiff(start, nextStart);
+
+      const cycleEntries = Object.entries(logs)
+        .filter(([d]) => d >= start && d < nextStart)
+        .map(([d, data]) => ({ date: d, ...data }));
+
+      const cBleeding = cycleEntries.filter((e) => e.bleeding && e.bleeding !== 'None');
+      const cScores = cycleEntries
+        .map((e) => Number(e.painScore))
+        .filter((s) => !isNaN(s) && s > 0);
+      const cPeakPain = cScores.length > 0 ? Math.max(...cScores) : null;
+      const cImpact = cycleEntries.filter((e) => e.functionalImpact === true);
+
+      let flag = 'Typical variation';
+      let badge = 'badge-sage';
+      if (cPeakPain && cPeakPain >= 7) {
+        flag = 'Severe pain (≥7)';
+        badge = 'badge-terracotta';
+      } else if (cBleeding.filter((e) => e.bleeding === 'Heavy').length >= 3) {
+        flag = 'Heavy flow';
+        badge = 'badge-amber';
+      } else if (cycleDuration > typicalLength + 7) {
+        flag = 'Extended cycle';
+        badge = 'badge-amber';
+      }
+
+      const cycleIndex = periodStarts.length - 1 - i;
+      cycles.push({
+        name: `Preceding Cycle (-${cycleIndex})`,
+        isCurrent: false,
+        isComplete: true,
+        startDate: start,
+        endDate: nextStart,
+        durationLabel: `${cycleDuration} days (Complete)`,
+        bleedingDaysCount: cBleeding.length,
+        peakPain: cPeakPain !== null ? `${cPeakPain} / 10` : 'None logged',
+        impactDaysCount: cImpact.length,
+        patternFlag: flag,
+        badgeType: badge
+      });
+    }
+
+    return {
+      cycles,
+      hasData: true,
+      note: periodStarts.length === 1
+        ? 'Only 1 cycle start recorded so far. Preceding cycle durations will be calculated when additional period starts are logged.'
+        : null
+    };
+  }, [logs, currentProfile.typicalCycleLength]);
+
+  // Filter summary counts for calendar pills
+  const loggedEntries = useMemo(() => Object.values(logs), [logs]);
+  const bleedingDays = useMemo(() => loggedEntries.filter((e) => e.bleeding && e.bleeding !== 'None'), [loggedEntries]);
+  const highPainDays = useMemo(() => loggedEntries.filter((e) => (e.painScore || 0) >= 6), [loggedEntries]);
+  const impactedDays = useMemo(() => loggedEntries.filter((e) => e.functionalImpact === true), [loggedEntries]);
 
   // Pain color helper
   const getPainDotColor = (score) => {
@@ -179,10 +294,10 @@ export default function CycleCalendarPage() {
 
       {/* Two Column Layout: Full Monthly Calendar + Day Inspection Drawer */}
       <div className={selectedDayLog ? "calendar-layout-grid" : ""}>
-        
+
         {/* Full Interactive Calendar Card */}
         <div className="saheli-card" style={{ padding: '1.75rem' }}>
-          
+
           {/* Calendar Header with Month Selector */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -262,13 +377,13 @@ export default function CycleCalendarPage() {
                     minHeight: '85px',
                     borderRadius: '12px',
                     padding: '0.6rem',
-                    backgroundColor: isSelected 
-                      ? 'var(--color-blush)' 
-                      : log 
-                        ? 'var(--bg-secondary)' 
+                    backgroundColor: isSelected
+                      ? 'var(--color-blush)'
+                      : log
+                        ? 'var(--bg-secondary)'
                         : 'var(--bg-card)',
-                    border: isSelected 
-                      ? '2px solid var(--color-berry)' 
+                    border: isSelected
+                      ? '2px solid var(--color-berry)'
                       : '1px solid var(--border-card)',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -341,8 +456,8 @@ export default function CycleCalendarPage() {
                   {selectedDayLog.dateStr}
                 </h3>
               </div>
-              <button 
-                onClick={() => setSelectedDayLog(null)} 
+              <button
+                onClick={() => setSelectedDayLog(null)}
                 aria-label="Close drawer"
                 style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}
               >
@@ -420,7 +535,7 @@ export default function CycleCalendarPage() {
                   <button
                     className="btn btn-primary"
                     style={{ flex: 1, fontSize: '0.82rem' }}
-                    onClick={() => navigate('/checkin')}
+                    onClick={() => navigate(selectedDayLog?.dateStr ? `/checkin?date=${selectedDayLog.dateStr}` : '/checkin')}
                   >
                     Edit This Day
                   </button>
@@ -434,7 +549,7 @@ export default function CycleCalendarPage() {
                 <button
                   className="btn btn-primary"
                   style={{ width: '100%', fontSize: '0.84rem' }}
-                  onClick={() => navigate('/checkin')}
+                  onClick={() => navigate(selectedDayLog?.dateStr ? `/checkin?date=${selectedDayLog.dateStr}` : '/checkin')}
                 >
                   <PlusCircle size={15} />
                   <span>Log Symptoms for this Date</span>
@@ -471,76 +586,47 @@ export default function CycleCalendarPage() {
               </tr>
             </thead>
             <tbody>
-              <tr style={{ borderBottom: '1px solid var(--border-card)' }}>
-                <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: 'var(--color-berry)' }}>
-                  Current Cycle (Active)
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  Day {currentProfile.currentCycleDay} of ~{currentProfile.typicalCycleLength || 29}d
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  {bleedingDays.length} days recorded
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  <strong style={{ color: highPainDays.length > 0 ? 'var(--color-terracotta)' : 'var(--color-berry)' }}>
-                    {highPainDays.length > 0 ? '8 / 10' : '4 / 10'}
-                  </strong>
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  {impactedDays.length} days
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  <span className="badge badge-berry" style={{ fontSize: '0.7rem' }}>
-                    {currentProfile.primaryPatternFocus.split(' ')[0]}
-                  </span>
-                </td>
-              </tr>
-              <tr style={{ borderBottom: '1px solid var(--border-card)' }}>
-                <td style={{ padding: '0.85rem 1rem', fontWeight: 600 }}>
-                  Preceding Cycle (-1)
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  {currentProfile.typicalCycleLength || 29} days
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  5 days
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  <strong style={{ color: 'var(--color-terracotta)' }}>9 / 10</strong>
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  2 days (bed rest)
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  <span className="badge badge-terracotta" style={{ fontSize: '0.7rem' }}>
-                    Severe Dysmenorrhea
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '0.85rem 1rem', fontWeight: 600 }}>
-                  Preceding Cycle (-2)
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  {(currentProfile.typicalCycleLength || 29) + 2} days
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  5 days
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  <strong>7 / 10</strong>
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  1 day
-                </td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  <span className="badge badge-sage" style={{ fontSize: '0.7rem' }}>
-                    Mid-cycle flare
-                  </span>
-                </td>
-              </tr>
+              {!cycleHistory.hasData ? (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '1.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                    {cycleHistory.note}
+                  </td>
+                </tr>
+              ) : (
+                cycleHistory.cycles.map((cycle, idx) => (
+                  <tr key={idx} style={{ borderBottom: idx < cycleHistory.cycles.length - 1 ? '1px solid var(--border-card)' : 'none' }}>
+                    <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: cycle.isCurrent ? 'var(--color-berry)' : 'var(--text-primary)' }}>
+                      {cycle.name}
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      {cycle.durationLabel}
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      {cycle.bleedingDaysCount} days recorded
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <strong style={{ color: cycle.peakPain.includes('8') || cycle.peakPain.includes('9') || cycle.peakPain.includes('10') || cycle.peakPain.includes('7') ? 'var(--color-terracotta)' : 'var(--text-primary)' }}>
+                        {cycle.peakPain}
+                      </strong>
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      {cycle.impactDaysCount} days
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <span className={`badge ${cycle.badgeType}`} style={{ fontSize: '0.7rem' }}>
+                        {cycle.patternFlag}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+          {cycleHistory.note && cycleHistory.hasData && (
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '0.85rem 1rem', borderTop: '1px solid var(--border-card)', backgroundColor: 'var(--bg-secondary)' }}>
+              ℹ️ {cycleHistory.note}
+            </div>
+          )}
         </div>
       </div>
     </div>
