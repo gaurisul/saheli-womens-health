@@ -13,6 +13,147 @@ export function getOffsetDate(daysOffset) {
   return formatDate(d);
 }
 
+// Amara K.: Endometriosis & Iron Deficiency Pattern (Mira Primary Showcase)
+function generateAmaraLogs() {
+  const logs = {};
+  // Current cycle: Oct 7 was Day 1 (17 days ago, so Day 18 is today)
+  const currentCycleStartOffset = -17; // Day 1 was 17 days ago
+
+  // Days 1-6: Menstrual Period (Heavy flow days 1-5, severe pelvic pain 7-8/10)
+  // Day 1 (Oct 7)
+  logs[getOffsetDate(currentCycleStartOffset)] = {
+    date: getOffsetDate(currentCycleStartOffset),
+    cycleDay: 1,
+    bleeding: 'Heavy',
+    painScore: 8,
+    functionalImpact: true,
+    impactTypes: ['Missed work or plans', 'Stayed in bed'],
+    symptoms: ['Cramps', 'Pelvic pain', 'Fatigue', 'Bloating'],
+    energyRating: 1,
+    moodRating: 2,
+    notes: 'Severe pelvic cramping, day 1 of menses. Had to stay in bed.'
+  };
+
+  // Day 2 (Oct 8)
+  logs[getOffsetDate(currentCycleStartOffset + 1)] = {
+    date: getOffsetDate(currentCycleStartOffset + 1),
+    cycleDay: 2,
+    bleeding: 'Heavy',
+    painScore: 8,
+    functionalImpact: true,
+    impactTypes: ['Missed work or plans', 'Stayed in bed'],
+    symptoms: ['Cramps', 'Pelvic pain', 'Painful bowel movements', 'Fatigue'],
+    energyRating: 1,
+    moodRating: 1,
+    notes: 'Painful bowel movements during period. Heavy bleeding.'
+  };
+
+  // Day 3 (Oct 9)
+  logs[getOffsetDate(currentCycleStartOffset + 2)] = {
+    date: getOffsetDate(currentCycleStartOffset + 2),
+    cycleDay: 3,
+    bleeding: 'Heavy',
+    painScore: 7,
+    functionalImpact: true,
+    impactTypes: ['Missed work or plans'],
+    symptoms: ['Cramps', 'Pelvic pain', 'Fatigue', 'Back pain', 'Bloating'],
+    energyRating: 1,
+    moodRating: 2,
+    notes: 'Severe pelvic pain. Heavy flow continues.'
+  };
+
+  // Day 4 (Oct 10)
+  logs[getOffsetDate(currentCycleStartOffset + 3)] = {
+    date: getOffsetDate(currentCycleStartOffset + 3),
+    cycleDay: 4,
+    bleeding: 'Heavy',
+    painScore: 5,
+    functionalImpact: false,
+    impactTypes: [],
+    symptoms: ['Pelvic pain', 'Fatigue', 'Headache'],
+    energyRating: 2,
+    moodRating: 2,
+    notes: 'Flow still surprisingly heavy for day 4.'
+  };
+
+  // Day 5 (Oct 11)
+  logs[getOffsetDate(currentCycleStartOffset + 4)] = {
+    date: getOffsetDate(currentCycleStartOffset + 4),
+    cycleDay: 5,
+    bleeding: 'Heavy',
+    painScore: 4,
+    functionalImpact: false,
+    impactTypes: [],
+    symptoms: ['Pelvic pain', 'Fatigue', 'Dizziness'],
+    energyRating: 2,
+    moodRating: 3,
+    notes: 'Dizziness standing up after lunch.'
+  };
+
+  // Day 6 (Oct 12)
+  logs[getOffsetDate(currentCycleStartOffset + 5)] = {
+    date: getOffsetDate(currentCycleStartOffset + 5),
+    cycleDay: 6,
+    bleeding: 'Spotting',
+    painScore: 2,
+    functionalImpact: false,
+    impactTypes: [],
+    symptoms: ['Bloating', 'Fatigue'],
+    energyRating: 3,
+    moodRating: 3,
+    notes: 'Bleeding finally tapering.'
+  };
+
+  // Days 7 to 17 (Follicular & Ovulation)
+  const midSymptoms = [
+    ['Fatigue', 'Brain fog'],
+    ['Feeling cold', 'Fatigue'],
+    ['Hair shedding', 'Fatigue'],
+    ['Headache', 'Bloating'],
+    ['Pelvic pain', 'Bloating'], // Ovulation flare around day 13-14
+    ['Pelvic pain', 'Fatigue'],
+    ['Feeling cold', 'Fatigue'],
+    ['Low mood', 'Fatigue'],
+    ['Bloating', 'Fatigue'],
+    ['Hair shedding', 'Cold sensitivity'],
+    ['Fatigue', 'Bloating']
+  ];
+
+  for (let i = 6; i < 17; i++) {
+    const dayNum = i + 1;
+    const syms = midSymptoms[i - 6] || ['Fatigue'];
+    logs[getOffsetDate(currentCycleStartOffset + i)] = {
+      date: getOffsetDate(currentCycleStartOffset + i),
+      cycleDay: dayNum,
+      bleeding: 'None',
+      painScore: dayNum === 13 || dayNum === 14 ? 3 : 1,
+      functionalImpact: false,
+      impactTypes: [],
+      symptoms: syms,
+      energyRating: 3,
+      moodRating: 3,
+      notes: dayNum === 14 ? 'Mild mid-cycle ovulation twinge.' : 'Normal daily routine.'
+    };
+  }
+
+  // Day 18 (TODAY) - Exactly matching Image 3:
+  // Bleeding: None, Pain level: 0, Symptoms: Bloating, Fatigue (2 selected), Energy: Low, Mood: Steady
+  logs[getOffsetDate(0)] = {
+    date: getOffsetDate(0),
+    cycleDay: 18,
+    bleeding: 'None',
+    painScore: 0,
+    functionalImpact: false,
+    impactTypes: [],
+    symptoms: ['Bloating', 'Fatigue'],
+    energyRating: 2, // Low
+    moodRating: 3,   // Steady
+    notes: ''
+  };
+
+  return logs;
+}
+
 // Priya Sharma: Endometriosis / Severe Dysmenorrhea Pattern
 // Cycle length: 29 days. Today is Cycle Day 14 (Ovulation window).
 function generatePriyaLogs() {
@@ -343,7 +484,36 @@ function generateMeeraLogs() {
   return logs;
 }
 
+export const DEFAULT_CONSENT_SETTINGS = {
+  includeName: true,
+  includeAge: true,
+  includeNotes: true,
+  includeMood: true,
+  includeTrends: true
+};
+
 export const SAMPLE_PROFILES = {
+  amara: {
+    id: 'amara',
+    name: 'Amara K.',
+    age: 31,
+    typicalCycleLength: 29,
+    typicalPeriodLength: 6,
+    upcomingVisitDate: '2026-11-03',
+    doctorName: 'Dr. Ngozi Okafor, MD (OB/GYN)',
+    primaryPatternFocus: 'Severe cyclical pelvic pain',
+    summaryBio: '31-year-old experiencing severe pelvic pain (7–8/10) on days 1–3 of menstruation, with catamenial bowel discomfort and functional disruption. Heavy flow has increased over recent cycles alongside persistent fatigue.',
+    currentCycleDay: 18,
+    currentPhase: 'Luteal Phase',
+    consentSettings: { ...DEFAULT_CONSENT_SETTINGS },
+    logs: generateAmaraLogs(),
+    customQuestions: [
+      { id: 'q1', text: 'Could my cyclical pelvic pain and bowel discomfort be consistent with endometriosis?', inReport: true },
+      { id: 'q2', text: 'Could multiple heavy bleeding days be causing depleted ferritin or iron deficiency?', inReport: true },
+      { id: 'q3', text: 'Would a specialized deep-endometriosis ultrasound mapping or MRI be recommended?', inReport: true },
+      { id: 'q4', text: 'What medical pain management strategies exist beyond standard over-the-counter NSAIDs?', inReport: true }
+    ]
+  },
   priya: {
     id: 'priya',
     name: 'Priya Sharma',
@@ -353,15 +523,15 @@ export const SAMPLE_PROFILES = {
     upcomingVisitDate: '2026-11-04',
     doctorName: 'Dr. Sunita Rao, MD (OB/GYN)',
     primaryPatternFocus: 'Endometriosis-related pattern',
-    summaryBio: '28-year-old software engineer experiencing escalating pelvic pain, deep dyspareunia, and pain during bowel movements during menses. Preparing for upcoming gynecology consultation.',
+    summaryBio: '28-year-old software engineer experiencing escalating cyclic pelvic pain, mid-cycle ovulatory twinges, and pain during bowel movements during menses. Preparing for upcoming gynecology consultation.',
     currentCycleDay: 14,
     currentPhase: 'Ovulatory Window',
-    daysUntilNextPeriod: 15,
+    consentSettings: { ...DEFAULT_CONSENT_SETTINGS },
     logs: generatePriyaLogs(),
     customQuestions: [
-      'Could my cyclic pelvic pain and mid-cycle ovulation flare indicate peritoneal or deep endometriosis?',
-      'Would a specialized transvaginal pelvic ultrasound (mapping scan) or MRI be appropriate rather than only standard pelvic ultrasound?',
-      'Should we trial cyclic or continuous progestin therapy before considering diagnostic laparoscopy?'
+      { id: 'q1', text: 'Could my cyclic pelvic pain and mid-cycle ovulation flare indicate peritoneal or deep endometriosis?', inReport: true },
+      { id: 'q2', text: 'Would a specialized transvaginal pelvic ultrasound (mapping scan) or MRI be appropriate rather than only standard pelvic ultrasound?', inReport: true },
+      { id: 'q3', text: 'Should we trial cyclic or continuous progestin therapy before considering diagnostic laparoscopy?', inReport: true }
     ]
   },
   ananya: {
@@ -376,12 +546,12 @@ export const SAMPLE_PROFILES = {
     summaryBio: '24-year-old student tracking irregular cycles (35-45 days), delayed ovulation, stubborn hormonal cystic acne along the jawline, and mild hirsutism.',
     currentCycleDay: 37,
     currentPhase: 'Extended Follicular Phase',
-    daysUntilNextPeriod: 5,
+    consentSettings: { ...DEFAULT_CONSENT_SETTINGS },
     logs: generateAnanyaLogs(),
     customQuestions: [
-      'Given my 35-45 day cycle variation and persistent cystic acne, do I meet the Rotterdam criteria for PCOS?',
-      'Could we test fasting insulin, fasting glucose, HOMA-IR, and a morning androgen panel (free testosterone, DHEA-S)?',
-      'What lifestyle and inositol or medication protocols would you recommend to regulate ovulation?'
+      { id: 'q1', text: 'Given my 35-45 day cycle variation and persistent cystic acne, do I meet the Rotterdam criteria for PCOS?', inReport: true },
+      { id: 'q2', text: 'Could we test fasting insulin, fasting glucose, HOMA-IR, and a morning androgen panel (free testosterone, DHEA-S)?', inReport: true },
+      { id: 'q3', text: 'What lifestyle and inositol or medication protocols would you recommend to regulate ovulation?', inReport: true }
     ]
   },
   meera: {
@@ -396,31 +566,31 @@ export const SAMPLE_PROFILES = {
     summaryBio: '34-year-old teacher presenting with 3+ days of heavy flooding menses, blood clots, profound exhaustion, cold intolerance, and exertional breathlessness.',
     currentCycleDay: 5,
     currentPhase: 'Late Menstrual Phase',
-    daysUntilNextPeriod: 23,
+    consentSettings: { ...DEFAULT_CONSENT_SETTINGS },
     logs: generateMeeraLogs(),
     customQuestions: [
-      'Given that I soak through protection in under 2 hours for 3 days consecutively, does this meet criteria for Menorrhagia (Heavy Menstrual Bleeding)?',
-      'Could we test a complete blood count (CBC), serum ferritin, and transferrin saturation to evaluate iron-deficiency anaemia?',
-      'Would tranexamic acid, hormonal IUD, or oral iron infusions be suitable to preserve iron stores?'
+      { id: 'q1', text: 'Given that I soak through protection rapidly for 3 consecutive days, does this meet criteria for Menorrhagia (Heavy Menstrual Bleeding)?', inReport: true },
+      { id: 'q2', text: 'Could we test a complete blood count (CBC), serum ferritin, and transferrin saturation to evaluate iron-deficiency anaemia?', inReport: true },
+      { id: 'q3', text: 'Would tranexamic acid, hormonal IUD, or oral iron therapy be suitable to preserve iron stores?', inReport: true }
     ]
   },
   guest: {
     id: 'guest',
-    name: 'Guest User',
-    age: 26,
+    name: 'Personal Diary',
+    age: '',
     typicalCycleLength: 28,
     typicalPeriodLength: 5,
     upcomingVisitDate: '',
-    doctorName: 'Primary Care Clinician / OB-GYN',
-    primaryPatternFocus: 'Personal Symptom Tracking',
-    summaryBio: 'Blank starter profile ready for you to log your daily symptoms and build a personalized doctor-ready health summary.',
+    doctorName: '',
+    primaryPatternFocus: 'Personal Symptom Diary',
+    summaryBio: 'Private symptom diary. Log your daily physical sensations, pain severity, and flow to generate an evidence-based clinical briefing.',
     currentCycleDay: 1,
     currentPhase: 'Menstrual Phase',
-    daysUntilNextPeriod: 28,
+    consentSettings: { ...DEFAULT_CONSENT_SETTINGS },
     logs: {},
     customQuestions: [
-      'How does my symptom frequency compare to normal menstrual variation?',
-      'Are there specific diagnostic blood tests or imaging studies we should consider?'
+      { id: 'q1', text: 'How does my symptom frequency and flow intensity compare to expected menstrual norms?', inReport: true },
+      { id: 'q2', text: 'Are there specific baseline diagnostic blood tests or imaging studies we should consider?', inReport: true }
     ]
   }
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { 
   Home, 
@@ -7,13 +7,14 @@ import {
   TrendingUp, 
   Stethoscope, 
   Shield, 
-  User, 
-  Sparkles 
+  X,
+  User,
+  Sparkles
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export default function Sidebar() {
-  const { currentProfile, profileId } = useApp();
+  const { currentProfile, profileId, isMobileNavDrawerOpen, setIsMobileNavDrawerOpen } = useApp();
 
   const navItems = [
     { to: '/dashboard', label: 'Today Dashboard', icon: Home },
@@ -24,63 +25,92 @@ export default function Sidebar() {
     { to: '/settings', label: 'Privacy & Settings', icon: Shield },
   ];
 
-  return (
+  // Close drawer on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isMobileNavDrawerOpen) {
+        setIsMobileNavDrawerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobileNavDrawerOpen, setIsMobileNavDrawerOpen]);
+
+  const handleNavClick = () => {
+    if (isMobileNavDrawerOpen) {
+      setIsMobileNavDrawerOpen(false);
+    }
+  };
+
+  const sidebarContent = (
     <aside 
-      className="sidebar no-print"
+      className={`sidebar-nav-container ${isMobileNavDrawerOpen ? 'drawer-open' : ''} no-print`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        bottom: 0,
         width: 'var(--sidebar-width)',
         backgroundColor: 'var(--bg-card)',
         borderRight: '1px solid var(--border-card)',
         display: 'flex',
         flexDirection: 'column',
-        zIndex: 40,
+        zIndex: 100,
         padding: '1.25rem 1rem'
       }}
     >
-      {/* Brand Logo */}
-      <Link 
-        to="/" 
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '0.75rem', 
-          padding: '0.5rem 0.75rem 1.25rem',
-          borderBottom: '1px solid var(--border-card)'
-        }}
-      >
-        <div style={{
-          width: '38px',
-          height: '38px',
-          borderRadius: '50%',
-          backgroundColor: 'var(--color-berry)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#FFFFFF',
-          boxShadow: '0 3px 10px var(--color-berry-glow)'
-        }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 7c-2 0-3.5 1.5-3.5 3.5S10 14 12 16c2-2 3.5-3.5 3.5-5.5S14 7 12 7z" fill="#FAF7F2" stroke="none"/>
-          </svg>
-        </div>
-        <div>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600, color: 'var(--color-berry)', margin: 0, lineHeight: 1 }}>
-            Saheli
-          </h1>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-            Clinician Bridge
-          </span>
-        </div>
-      </Link>
+      {/* Brand Logo & Mobile Close */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-card)', paddingBottom: '1rem' }}>
+        <Link 
+          to="/" 
+          onClick={handleNavClick}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.75rem'
+          }}
+        >
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            backgroundColor: 'var(--color-berry)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#FFFFFF'
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7c-2 0-3.5 1.5-3.5 3.5S10 14 12 16c2-2 3.5-3.5 3.5-5.5S14 7 12 7z" fill="#FAF7F2" stroke="none"/>
+            </svg>
+          </div>
+          <div>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', fontWeight: 600, color: 'var(--color-berry)', margin: 0, lineHeight: 1.1 }}>
+              Saheli
+            </h1>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: 600 }}>
+              Clinician Bridge
+            </span>
+          </div>
+        </Link>
+
+        {/* Mobile Close Button */}
+        <button
+          type="button"
+          onClick={() => setIsMobileNavDrawerOpen(false)}
+          className="mobile-close-btn"
+          aria-label="Close navigation menu"
+          style={{
+            display: 'none',
+            padding: '0.4rem',
+            borderRadius: '8px',
+            color: 'var(--text-secondary)'
+          }}
+        >
+          <X size={20} />
+        </button>
+      </div>
 
       {/* Navigation links */}
-      <nav style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}>
-        <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-light)', fontWeight: 700, padding: '0.25rem 0.75rem 0.4rem', letterSpacing: '0.05em' }}>
+      <nav style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1, overflowY: 'auto' }}>
+        <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, padding: '0.25rem 0.75rem 0.4rem', letterSpacing: '0.06em' }}>
           Workspace
         </div>
 
@@ -90,13 +120,14 @@ export default function Sidebar() {
             <NavLink
               key={item.to}
               to={item.to}
+              onClick={handleNavClick}
               style={({ isActive }) => ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
                 padding: '0.65rem 0.85rem',
                 borderRadius: 'var(--radius-md)',
-                fontSize: '0.9rem',
+                fontSize: '0.88rem',
                 fontWeight: isActive ? 600 : 500,
                 color: isActive ? 'var(--color-berry)' : 'var(--text-secondary)',
                 backgroundColor: isActive ? 'var(--color-blush)' : 'transparent',
@@ -104,22 +135,26 @@ export default function Sidebar() {
                 transition: 'all 0.15s ease'
               })}
             >
-              <Icon size={18} style={{ opacity: 0.9 }} />
+              <Icon size={17} />
               <span>{item.label}</span>
             </NavLink>
           );
         })}
 
         <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-card)' }}>
+          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, padding: '0.25rem 0.75rem 0.4rem', letterSpacing: '0.06em' }}>
+            Reference & Demos
+          </div>
           <NavLink
             to="/"
+            onClick={handleNavClick}
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
               padding: '0.6rem 0.85rem',
               borderRadius: 'var(--radius-md)',
-              fontSize: '0.85rem',
+              fontSize: '0.84rem',
               color: 'var(--text-muted)',
               transition: 'all 0.15s ease'
             })}
@@ -129,13 +164,14 @@ export default function Sidebar() {
           </NavLink>
           <NavLink
             to="/login"
+            onClick={handleNavClick}
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
               padding: '0.6rem 0.85rem',
               borderRadius: 'var(--radius-md)',
-              fontSize: '0.85rem',
+              fontSize: '0.84rem',
               color: 'var(--text-muted)',
               transition: 'all 0.15s ease'
             })}
@@ -155,7 +191,8 @@ export default function Sidebar() {
           padding: '0.85rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.4rem'
+          gap: '0.4rem',
+          marginTop: 'auto'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -179,12 +216,12 @@ export default function Sidebar() {
                 {currentProfile.name}
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                Age {currentProfile.age}
+                {currentProfile.age ? `Age ${currentProfile.age}` : 'Personal Diary'}
               </div>
             </div>
           </div>
           <span className="badge badge-berry" style={{ fontSize: '0.65rem' }}>
-            Demo
+            {profileId === 'guest' ? 'Private' : 'Demo'}
           </span>
         </div>
 
@@ -198,9 +235,64 @@ export default function Sidebar() {
           justifyContent: 'space-between'
         }}>
           <span>Cycle Day <strong>{currentProfile.currentCycleDay}</strong></span>
-          <span style={{ color: 'var(--color-berry)' }}>{currentProfile.currentPhase}</span>
+          <span style={{ color: 'var(--color-berry)', fontWeight: 500 }}>{currentProfile.currentPhase}</span>
         </div>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      <style>{`
+        /* Desktop Fixed Sidebar */
+        .sidebar-nav-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+        }
+
+        /* Mobile / Tablet off-canvas drawer */
+        @media (max-width: 900px) {
+          .sidebar-nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            transform: translateX(-100%);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 25px rgba(0,0,0,0.15);
+            max-width: 290px;
+            width: 82vw !important;
+          }
+
+          .sidebar-nav-container.drawer-open {
+            transform: translateX(0);
+          }
+
+          .mobile-close-btn {
+            display: inline-flex !important;
+          }
+        }
+      `}</style>
+
+      {/* Mobile Backdrop Overlay */}
+      {isMobileNavDrawerOpen && (
+        <div 
+          onClick={() => setIsMobileNavDrawerOpen(false)}
+          className="no-print"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(35, 28, 30, 0.45)',
+            zIndex: 99,
+            backdropFilter: 'blur(2px)'
+          }}
+          aria-hidden="true"
+        />
+      )}
+
+      {sidebarContent}
+    </>
   );
 }

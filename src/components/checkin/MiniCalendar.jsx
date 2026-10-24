@@ -2,8 +2,8 @@ import React from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatDate } from '../../data/sampleProfiles';
 
-export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
-  const currentDate = new Date(selectedDate);
+export default function MiniCalendar({ selectedDate, onSelectDate, logs = {} }) {
+  const currentDate = new Date(selectedDate || new Date());
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
@@ -28,18 +28,15 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
 
   return (
     <div 
+      className="saheli-card"
       style={{
-        backgroundColor: 'var(--bg-card)',
-        border: '1px solid var(--border-card)',
-        borderRadius: '16px',
-        padding: '1.25rem',
-        boxShadow: 'var(--shadow-card)'
+        padding: '1.25rem'
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
           <CalendarIcon size={16} color="var(--color-berry)" />
-          <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
             {monthNames[month]} {year}
           </span>
         </div>
@@ -48,7 +45,7 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
             type="button" 
             onClick={handlePrevMonth} 
             aria-label="Previous month"
-            style={{ padding: '0.3rem', borderRadius: '6px', color: 'var(--text-secondary)' }}
+            style={{ padding: '0.35rem', borderRadius: '6px', color: 'var(--text-secondary)', border: '1px solid var(--border-card)' }}
           >
             <ChevronLeft size={16} />
           </button>
@@ -56,7 +53,7 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
             type="button" 
             onClick={handleNextMonth} 
             aria-label="Next month"
-            style={{ padding: '0.3rem', borderRadius: '6px', color: 'var(--text-secondary)' }}
+            style={{ padding: '0.35rem', borderRadius: '6px', color: 'var(--text-secondary)', border: '1px solid var(--border-card)' }}
           >
             <ChevronRight size={16} />
           </button>
@@ -66,7 +63,7 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
       {/* Weekday headers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', textAlign: 'center', marginBottom: '0.35rem' }}>
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
-          <span key={d} style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+          <span key={d} style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
             {d}
           </span>
         ))}
@@ -84,13 +81,15 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
           const isSelected = selectedDate === dateStr;
           const logForDay = logs[dateStr];
           const hasBleeding = logForDay && logForDay.bleeding && logForDay.bleeding !== 'None';
-          const hasHighPain = logForDay && logForDay.painScore >= 6;
+          const hasHighPain = logForDay && (Number(logForDay.painScore) || 0) >= 6;
+          const hasImpact = logForDay && logForDay.functionalImpact;
 
           return (
             <button
               type="button"
               key={dateStr}
               onClick={() => onSelectDate(dateStr)}
+              aria-label={`Select date ${dateStr}${logForDay ? ', log entry recorded' : ''}`}
               style={{
                 aspectRatio: '1',
                 borderRadius: '8px',
@@ -99,8 +98,8 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'relative',
-                fontSize: '0.78rem',
-                fontWeight: isSelected ? 700 : 500,
+                fontSize: '0.8rem',
+                fontWeight: isSelected ? 700 : logForDay ? 600 : 400,
                 backgroundColor: isSelected 
                   ? 'var(--color-berry)' 
                   : logForDay 
@@ -120,9 +119,10 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
 
               {/* Status indicators */}
               {logForDay && (
-                <div style={{ display: 'flex', gap: '2px', position: 'absolute', bottom: '2px' }}>
+                <div style={{ display: 'flex', gap: '2px', position: 'absolute', bottom: '3px' }}>
                   {hasBleeding && (
                     <span 
+                      title="Bleeding flow logged"
                       style={{ 
                         width: '4px', 
                         height: '4px', 
@@ -133,11 +133,23 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
                   )}
                   {hasHighPain && (
                     <span 
+                      title="Moderate/Severe pain logged"
                       style={{ 
                         width: '4px', 
                         height: '4px', 
                         borderRadius: '50%', 
                         backgroundColor: isSelected ? '#FCA5A5' : 'var(--color-terracotta)' 
+                      }} 
+                    />
+                  )}
+                  {hasImpact && (
+                    <span 
+                      title="Functional impact logged"
+                      style={{ 
+                        width: '4px', 
+                        height: '4px', 
+                        borderRadius: '50%', 
+                        backgroundColor: isSelected ? '#FED7AA' : 'var(--color-amber)' 
                       }} 
                     />
                   )}
@@ -148,7 +160,8 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
         })}
       </div>
 
-      <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-card)', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-around' }}>
+      {/* Legend */}
+      <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-card)', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--color-berry)' }} />
           Flow recorded
@@ -156,6 +169,10 @@ export default function MiniCalendar({ selectedDate, onSelectDate, logs }) {
         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--color-terracotta)' }} />
           Pain ≥ 6
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--color-amber)' }} />
+          Functional impact
         </span>
       </div>
     </div>

@@ -3,72 +3,71 @@ import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 
 const SYMPTOM_CATEGORIES = [
   {
-    category: 'Pain & Body',
-    description: 'Pelvic, cramping, and somatic symptoms',
+    category: 'Pain & Pelvic',
+    description: 'Pelvic cramping, somatic pain, and catamenial symptoms',
     items: [
       'Lower abdominal cramps',
       'Lower back ache',
-      'Pelvic pressure',
+      'Pelvic pressure / heaviness',
       'Ovulation pain / Mittelschmerz',
       'Pain with bowel movement',
       'Dyspareunia / intercourse pain',
-      'Shooting nerve pain',
-      'Headaches / Migraine',
+      'Shooting nerve pain down legs',
+      'Headaches / Hormonal migraine',
       'Breast tenderness',
       'Joint / muscle aches'
     ]
   },
   {
     category: 'Energy & Sleep',
-    description: 'Vitality, fatigue, and sleep disturbances',
+    description: 'Vitality, fatigue, and sleep quality markers',
     items: [
       'Fatigue / low stamina',
-      'Brain fog',
-      'Insomnia / trouble sleeping',
-      'Restless night',
-      'Drowsiness',
-      'Morning stiffness'
+      'Brain fog / mental sluggishness',
+      'Insomnia / restless sleep',
+      'Excessive daytime drowsiness',
+      'Feeling cold / chills',
+      'Post-exertional exhaustion'
     ]
   },
   {
-    category: 'Mood & Mental',
-    description: 'Emotional balance and psychological state',
+    category: 'Mood & Emotional State',
+    description: 'Neurohormonal balance and emotional wellbeing',
     items: [
-      'Irritability',
-      'Anxiety / restlessness',
-      'Low mood / tearful',
-      'Mood swings',
-      'Calm & centered',
-      'High motivation'
+      'Irritability / short fuse',
+      'Heightened anxiety / restlessness',
+      'Low mood / tearfulness',
+      'Emotional overwhelm / mood swings',
+      'Calm & balanced',
+      'High motivation & mental clarity'
     ]
   },
   {
     category: 'Digestion & GI',
-    description: 'Gut, motility, and appetite changes',
+    description: 'Gut motility, bloating, and gastrointestinal sensitivity',
     items: [
       'Bloating / abdominal distension',
-      'Nausea',
+      'Nausea / stomach upset',
       'Constipation',
-      'Diarrhea',
-      'Food cravings',
-      'Acid reflux'
+      'Diarrhea / loose stools',
+      'Intense sugar / carb cravings',
+      'Acid reflux / heartburn'
     ]
   },
   {
     category: 'Skin & Hair',
-    description: 'Androgenic and dermatological markers',
+    description: 'Cutaneous and androgenic markers',
     items: [
-      'Hormonal acne flare',
-      'Hair shedding / thinning',
-      'Unwanted facial hair',
-      'Excess facial oil',
-      'Dry skin'
+      'Hormonal cystic acne flare',
+      'Diffuse hair shedding / thinning',
+      'Unwanted facial hair / hirsutism',
+      'Excess skin oiliness',
+      'Dry or inflamed skin'
     ]
   }
 ];
 
-export default function SymptomChipGroup({ selectedSymptoms, onToggleSymptom }) {
-  // Allow collapsing categories if desired, default all open
+export default function SymptomChipGroup({ selectedSymptoms = [], onToggleSymptom, disabled = false }) {
   const [collapsed, setCollapsed] = useState({});
 
   const toggleCategory = (catName) => {
@@ -77,11 +76,16 @@ export default function SymptomChipGroup({ selectedSymptoms, onToggleSymptom }) 
 
   return (
     <div style={{ marginBottom: '1.5rem' }}>
-      <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
-        Symptom Observations ({selectedSymptoms.length} selected)
-      </label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+        <label style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+          Symptom Observations ({selectedSymptoms.length} recorded)
+        </label>
+        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+          Click chips to toggle
+        </span>
+      </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
         {SYMPTOM_CATEGORIES.map((cat) => {
           const isCollapsed = collapsed[cat.category];
           const countInCat = cat.items.filter((item) => selectedSymptoms.includes(item)).length;
@@ -92,13 +96,17 @@ export default function SymptomChipGroup({ selectedSymptoms, onToggleSymptom }) 
               style={{
                 backgroundColor: 'var(--bg-card)',
                 border: '1px solid var(--border-card)',
-                borderRadius: '12px',
-                padding: '1rem',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.9rem 1.1rem',
                 boxShadow: 'var(--shadow-subtle)'
               }}
             >
               <div 
                 onClick={() => toggleCategory(cat.category)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCategory(cat.category); } }}
+                aria-expanded={!isCollapsed}
                 style={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
@@ -114,8 +122,8 @@ export default function SymptomChipGroup({ selectedSymptoms, onToggleSymptom }) 
                       {cat.category}
                     </span>
                     {countInCat > 0 && (
-                      <span className="badge badge-berry" style={{ fontSize: '0.68rem', padding: '0.15rem 0.45rem' }}>
-                        {countInCat} active
+                      <span className="badge badge-berry" style={{ fontSize: '0.68rem', padding: '0.15rem 0.5rem' }}>
+                        {countInCat} selected
                       </span>
                     )}
                   </div>
@@ -123,36 +131,38 @@ export default function SymptomChipGroup({ selectedSymptoms, onToggleSymptom }) 
                     {cat.description}
                   </span>
                 </div>
-                <button type="button" aria-label="Toggle section" style={{ color: 'var(--text-muted)' }}>
+                <div style={{ color: 'var(--text-muted)' }} aria-hidden="true">
                   {isCollapsed ? <ChevronDown size={17} /> : <ChevronUp size={17} />}
-                </button>
+                </div>
               </div>
 
               {!isCollapsed && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginTop: '0.75rem' }}>
                   {cat.items.map((item) => {
                     const isSelected = selectedSymptoms.includes(item);
                     return (
                       <button
                         type="button"
                         key={item}
-                        onClick={() => onToggleSymptom(item)}
+                        disabled={disabled}
+                        onClick={() => !disabled && onToggleSymptom(item)}
+                        aria-pressed={isSelected}
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.35rem',
                           padding: '0.45rem 0.8rem',
                           borderRadius: 'var(--radius-full)',
-                          fontSize: '0.8rem',
+                          fontSize: '0.82rem',
                           fontWeight: isSelected ? 600 : 500,
                           backgroundColor: isSelected ? 'var(--color-blush)' : 'var(--bg-secondary)',
                           color: isSelected ? 'var(--color-berry)' : 'var(--text-secondary)',
-                          border: isSelected ? '1px solid var(--color-berry)' : '1px solid var(--border-card)',
-                          cursor: 'pointer',
+                          border: isSelected ? '1.5px solid var(--color-berry)' : '1px solid var(--border-card)',
+                          cursor: disabled ? 'not-allowed' : 'pointer',
                           transition: 'all 0.15s ease'
                         }}
                       >
-                        {isSelected && <Check size={13} color="var(--color-berry)" />}
+                        {isSelected && <Check size={13} color="var(--color-berry)" strokeWidth={2.5} />}
                         <span>{item}</span>
                       </button>
                     );

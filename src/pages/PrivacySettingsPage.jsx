@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   ShieldCheck, 
@@ -7,7 +7,10 @@ import {
   RotateCcw, 
   Trash2, 
   User, 
-  Save 
+  Save, 
+  Lock, 
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 
 export default function PrivacySettingsPage() {
@@ -18,23 +21,33 @@ export default function PrivacySettingsPage() {
     importDataJSON, 
     resetToFactorySampleData, 
     clearAllData, 
-    setIsUrgentModalOpen,
-    setIsDisclaimerModalOpen 
+    profileId,
+    showToast
   } = useApp();
 
   // Local state for editable user preferences
-  const [name, setName] = useState(currentProfile.name);
-  const [age, setAge] = useState(currentProfile.age);
+  const [name, setName] = useState(currentProfile.name || '');
+  const [age, setAge] = useState(currentProfile.age || '');
   const [cycleLength, setCycleLength] = useState(currentProfile.typicalCycleLength || 28);
   const [periodLength, setPeriodLength] = useState(currentProfile.typicalPeriodLength || 5);
   const [doctorName, setDoctorName] = useState(currentProfile.doctorName || '');
   const [visitDate, setVisitDate] = useState(currentProfile.upcomingVisitDate || '');
 
+  // Keep local state in sync when profile switches
+  useEffect(() => {
+    setName(currentProfile.name || '');
+    setAge(currentProfile.age || '');
+    setCycleLength(currentProfile.typicalCycleLength || 28);
+    setPeriodLength(currentProfile.typicalPeriodLength || 5);
+    setDoctorName(currentProfile.doctorName || '');
+    setVisitDate(currentProfile.upcomingVisitDate || '');
+  }, [profileId, currentProfile]);
+
   const handleSaveProfile = (e) => {
     e.preventDefault();
     updateProfile({
       name,
-      age: Number(age),
+      age: age ? Number(age) : '',
       typicalCycleLength: Number(cycleLength),
       typicalPeriodLength: Number(periodLength),
       doctorName,
@@ -54,6 +67,7 @@ export default function PrivacySettingsPage() {
       }
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleClearAll = () => {
@@ -93,160 +107,123 @@ export default function PrivacySettingsPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             <p>
-              <strong>Honest Privacy Commitment:</strong> Saheli is built as a client-side prototype. All entries you record are stored strictly inside your browser's local sandbox (via HTML5 <code style={{ backgroundColor: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: '4px' }}>localStorage</code>).
+              <strong>Honest Privacy Commitment:</strong> Saheli is designed as a privacy-respecting, client-side web application. All entries you record are stored strictly inside your browser's local sandbox (via HTML5 <code style={{ backgroundColor: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: '4px' }}>localStorage</code>).
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
-                <h4 style={{ color: 'var(--color-berry)', fontSize: '0.9rem', marginBottom: '0.3rem' }}>
-                  No Remote Cloud Database
-                </h4>
-                <p style={{ fontSize: '0.8rem' }}>
-                  Zero personal symptoms or cycle dates are transmitted over the internet to remote servers or third-party trackers.
+                <div style={{ fontWeight: 600, color: 'var(--color-berry)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Lock size={15} />
+                  <span>No External PHI Transmission</span>
+                </div>
+                <p style={{ fontSize: '0.82rem', margin: 0 }}>
+                  We do not transmit your symptom diaries, notes, or patient names to remote advertising or EHR servers. Data does not leave this computer.
                 </p>
               </div>
 
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
-                <h4 style={{ color: 'var(--color-berry)', fontSize: '0.9rem', marginBottom: '0.3rem' }}>
-                  Not a Certified EHR System
-                </h4>
-                <p style={{ fontSize: '0.8rem' }}>
-                  We do not falsely claim HIPAA or GDPR certified cloud encryption. Browser storage is accessible by anyone who has physical access to this computer.
-                </p>
-              </div>
-
-              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
-                <h4 style={{ color: 'var(--color-berry)', fontSize: '0.9rem', marginBottom: '0.3rem' }}>
-                  100% Exportable & Erasable
-                </h4>
-                <p style={{ fontSize: '0.8rem' }}>
-                  You own your data completely. You can export your full health diary as a JSON file anytime or clear it with a single click.
+                <div style={{ fontWeight: 600, color: 'var(--color-berry)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Download size={15} />
+                  <span>Complete Data Portability</span>
+                </div>
+                <p style={{ fontSize: '0.82rem', margin: 0 }}>
+                  You can export your complete health history as an open JSON file at any time, import previous backups, or delete all stored records with one click.
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Patient Profile Preferences Form */}
+        {/* Profile & Clinician Preferences Form */}
         <div className="saheli-card">
           <div className="card-header-row">
             <div className="card-title">
               <User size={18} color="var(--color-berry)" />
-              <span>Consultation Profile Preferences</span>
+              <span>Patient Profile & Clinician Information</span>
             </div>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              Updates Clinician Brief
-            </span>
+            <span className="badge badge-berry">Active: {currentProfile.name || 'Private Diary'}</span>
           </div>
 
           <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-                  Patient Full Name
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                  Patient Name or Pseudonym
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '10px',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'var(--bg-primary)'
-                  }}
+                  placeholder="e.g. Amara K. or leave blank for anonymous"
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
                   Age
                 </label>
                 <input
                   type="number"
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '10px',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'var(--bg-primary)'
-                  }}
+                  placeholder="e.g. 29"
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-                  Typical Cycle Duration (Days)
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                  Typical Cycle Length (Days)
                 </label>
                 <input
                   type="number"
+                  min="20"
+                  max="60"
                   value={cycleLength}
                   onChange={(e) => setCycleLength(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '10px',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'var(--bg-primary)'
-                  }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)' }}
                 />
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Typical range 24–38 days</span>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-                  Typical Menses Duration (Days)
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                  Typical Period Duration (Days)
                 </label>
                 <input
                   type="number"
+                  min="2"
+                  max="12"
                   value={periodLength}
                   onChange={(e) => setPeriodLength(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '10px',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'var(--bg-primary)'
-                  }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)' }}
                 />
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Typical range 3–7 days</span>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-                  Clinician / Practice Name
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                  Clinician or Practice Name
                 </label>
                 <input
                   type="text"
                   value={doctorName}
                   onChange={(e) => setDoctorName(e.target.value)}
                   placeholder="e.g. Dr. Sunita Rao, MD (OB/GYN)"
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '10px',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'var(--bg-primary)'
-                  }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
                   Upcoming Appointment Date
                 </label>
                 <input
                   type="date"
                   value={visitDate}
                   onChange={(e) => setVisitDate(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '10px',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'var(--bg-primary)'
-                  }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)' }}
                 />
               </div>
             </div>
@@ -260,41 +237,44 @@ export default function PrivacySettingsPage() {
           </form>
         </div>
 
-        {/* Data Management & Backup Controls */}
+        {/* Backup, Restore & Reset Operations */}
         <div className="saheli-card">
           <div className="card-header-row">
             <div className="card-title">
               <Download size={18} color="var(--color-berry)" />
-              <span>Data Export, Import & Sample Data Reset</span>
+              <span>Data Management & Backup</span>
             </div>
-            <span className="badge badge-berry">JSON Control</span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
-            
-            {/* Export */}
-            <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-card)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <h4 style={{ fontSize: '0.98rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>Export Health Diary</h4>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                  Download all your recorded symptom entries, pain logs, and notes as a portable JSON file.
-                </p>
-              </div>
-              <button onClick={exportDataJSON} className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
-                <Download size={14} /> Download Diary Backup
+            <div style={{ border: '1px solid var(--border-card)', padding: '1.25rem', borderRadius: '10px' }}>
+              <h4 style={{ fontSize: '0.98rem', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
+                Export JSON Diary
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                Download your symptom entries, custom clinician questions, and cycle metrics as a machine-readable JSON backup.
+              </p>
+              <button
+                type="button"
+                onClick={exportDataJSON}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.84rem' }}
+              >
+                <Download size={14} />
+                <span>Download Backup</span>
               </button>
             </div>
 
-            {/* Import */}
-            <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-card)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <h4 style={{ fontSize: '0.98rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>Import Health Diary</h4>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                  Restore previously exported Saheli JSON backup files to your browser session.
-                </p>
-              </div>
-              <label className="btn btn-outline" style={{ fontSize: '0.82rem', cursor: 'pointer', textAlign: 'center' }}>
-                <Upload size={14} /> Select JSON File
+            <div style={{ border: '1px solid var(--border-card)', padding: '1.25rem', borderRadius: '10px' }}>
+              <h4 style={{ fontSize: '0.98rem', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
+                Import JSON Backup
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                Restore diary records from a previously exported Saheli JSON backup file.
+              </p>
+              <label className="btn btn-secondary" style={{ fontSize: '0.84rem', cursor: 'pointer', display: 'inline-flex' }}>
+                <Upload size={14} />
+                <span>Upload JSON</span>
                 <input
                   type="file"
                   accept=".json,application/json"
@@ -304,54 +284,41 @@ export default function PrivacySettingsPage() {
               </label>
             </div>
 
-            {/* Reset to Factory Sample Data */}
-            <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-card)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <h4 style={{ fontSize: '0.98rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>Reset Sample Personas</h4>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                  Restore the initial rich demonstration data for Priya (Endo), Ananya (PCOS), and Meera (Anaemia).
-                </p>
-              </div>
-              <button onClick={resetToFactorySampleData} className="btn btn-blush" style={{ fontSize: '0.82rem' }}>
-                <RotateCcw size={14} /> Reset Demo Data
+            <div style={{ border: '1px solid var(--border-card)', padding: '1.25rem', borderRadius: '10px' }}>
+              <h4 style={{ fontSize: '0.98rem', marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
+                Reset Sample Profiles
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                Restore the default demonstration profiles (Amara, Priya, Ananya, Meera) to original literature-calibrated values.
+              </p>
+              <button
+                type="button"
+                onClick={resetToFactorySampleData}
+                className="btn btn-outline"
+                style={{ fontSize: '0.84rem' }}
+              >
+                <RotateCcw size={14} />
+                <span>Reset Demo Data</span>
               </button>
             </div>
 
-            {/* Danger Zone: Clear Local Storage */}
-            <div style={{ backgroundColor: '#FCF1EE', padding: '1.25rem', borderRadius: '12px', border: '1px solid #E8ACA0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <h4 style={{ fontSize: '0.98rem', marginBottom: '0.4rem', color: '#9C4532' }}>Clear All Local Logs</h4>
-                <p style={{ fontSize: '0.8rem', color: '#5C2419', marginBottom: '1rem' }}>
-                  Erase all recorded entries, symptom chips, and notes from this browser.
-                </p>
-              </div>
-              <button 
+            <div style={{ border: '1px solid #FCA5A5', padding: '1.25rem', borderRadius: '10px', backgroundColor: '#FDF2F2' }}>
+              <h4 style={{ fontSize: '0.98rem', marginBottom: '0.35rem', color: '#B91C1C' }}>
+                Erase All Local Storage
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: '#7F1D1D', marginBottom: '1rem' }}>
+                Permanently purge all stored entries, cookies, and local session caches from this browser.
+              </p>
+              <button
+                type="button"
                 onClick={handleClearAll}
                 className="btn btn-urgent"
-                style={{ fontSize: '0.82rem', padding: '0.5rem' }}
+                style={{ fontSize: '0.84rem' }}
               >
-                <Trash2 size={14} /> Wipe Local Storage
+                <Trash2 size={14} />
+                <span>Clear All Records</span>
               </button>
             </div>
-
-          </div>
-        </div>
-
-        {/* Clinical Disclaimer & Urgent Care Quick Modals */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.75rem', borderRadius: '14px', border: '1px solid var(--border-card)', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>Medical & Regulatory Scope Reference</h4>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-              Review our full medical disclaimer, clinical guidelines, and urgent care red flags.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button onClick={() => setIsUrgentModalOpen(true)} className="btn btn-urgent" style={{ fontSize: '0.82rem' }}>
-              Urgent Care Guide
-            </button>
-            <button onClick={() => setIsDisclaimerModalOpen(true)} className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
-              Full Medical Disclaimer
-            </button>
           </div>
         </div>
 

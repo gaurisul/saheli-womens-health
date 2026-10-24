@@ -4,8 +4,7 @@ import {
   BarChart2, 
   Activity, 
   Zap, 
-  ArrowRight, 
-  ShieldCheck 
+  ArrowRight 
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -22,22 +21,22 @@ import {
 import { Link } from 'react-router-dom';
 
 export default function InsightsTrendsPage() {
-  const { logs, currentProfile, detectedPatterns, setActiveEvidenceRule, setIsDisclaimerModalOpen } = useApp();
+  const { logs, currentProfile, detectedPatterns, setActiveEvidenceRule, summaryMetrics } = useApp();
 
   const [timeRange, setTimeRange] = useState('30days'); // '30days', '3cycles', '6months'
 
   // Prepare chart data from logs
   const entries = Object.values(logs);
-  const totalDays = Math.max(currentProfile.typicalCycleLength || 28, 28);
+  const totalDays = Math.max(Number(currentProfile.typicalCycleLength) || 28, 28);
 
   // 1. Pain by Cycle Day
   const painByDay = [];
   for (let day = 1; day <= totalDays; day++) {
-    const matching = entries.find((e) => e.cycleDay === day);
+    const matching = entries.find((e) => Number(e.cycleDay) === day);
     painByDay.push({
       cycleDay: `D${day}`,
       dayNum: day,
-      painScore: matching ? matching.painScore : null,
+      painScore: matching ? Number(matching.painScore) : null,
       bleeding: matching ? matching.bleeding : 'None'
     });
   }
@@ -56,18 +55,35 @@ export default function InsightsTrendsPage() {
     }
   });
   const bleedingChartData = [
-    { level: 'Spotting', count: bleedingCounts.Spotting, color: '#C25E48' },
-    { level: 'Light', count: bleedingCounts.Light, color: '#A83256' },
-    { level: 'Medium', count: bleedingCounts.Medium, color: '#89284D' },
-    { level: 'Heavy', count: bleedingCounts.Heavy, color: '#6B1D3A' },
+    { level: 'Spotting', count: bleedingCounts.Spotting, color: 'var(--color-terracotta)' },
+    { level: 'Light', count: bleedingCounts.Light, color: 'var(--color-berry-light)' },
+    { level: 'Medium', count: bleedingCounts.Medium, color: 'var(--color-berry)' },
+    { level: 'Heavy', count: bleedingCounts.Heavy, color: 'var(--color-berry-dark)' },
   ];
 
-  // 3. Energy & Mood Phase Correlation (Menstrual, Follicular, Ovulatory, Luteal)
+  // 3. Energy & Mood Phase Correlation (derived dynamically from actual entries)
+  const calculatePhaseMetrics = (minDay, maxDay, label) => {
+    const phaseEntries = entries.filter((e) => {
+      const d = Number(e.cycleDay) || 1;
+      return d >= minDay && d <= maxDay;
+    });
+    if (phaseEntries.length === 0) {
+      return { phase: label, energy: 3.0, mood: 3.0, sample: 0 };
+    }
+    const avgEnergy = (
+      phaseEntries.reduce((acc, curr) => acc + (Number(curr.energyRating) || 3), 0) / phaseEntries.length
+    ).toFixed(1);
+    const avgMood = (
+      phaseEntries.reduce((acc, curr) => acc + (Number(curr.moodRating) || 3), 0) / phaseEntries.length
+    ).toFixed(1);
+    return { phase: label, energy: parseFloat(avgEnergy), mood: parseFloat(avgMood), sample: phaseEntries.length };
+  };
+
   const phaseData = [
-    { phase: 'Menstrual (D1–5)', energy: 2.1, mood: 2.3, pain: 7.2 },
-    { phase: 'Follicular (D6–11)', energy: 4.2, mood: 4.0, pain: 1.5 },
-    { phase: 'Ovulatory (D12–16)', energy: 3.8, mood: 3.6, pain: 4.8 },
-    { phase: 'Luteal (D17–28)', energy: 2.8, mood: 2.9, pain: 3.2 },
+    calculatePhaseMetrics(1, 5, 'Menstrual (D1–5)'),
+    calculatePhaseMetrics(6, 11, 'Follicular (D6–11)'),
+    calculatePhaseMetrics(12, 16, 'Ovulatory (D12–16)'),
+    calculatePhaseMetrics(17, totalDays, `Luteal (D17–${totalDays})`),
   ];
 
   // 4. Top Reported Symptoms Frequency
@@ -88,19 +104,19 @@ export default function InsightsTrendsPage() {
       <div style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
               <span className="badge badge-berry" style={{ fontSize: '0.72rem' }}>
                 Longitudinal Analytics
               </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {currentProfile.name}
+                {currentProfile.name} · {summaryMetrics.totalLoggedDays} Logged Days
               </span>
             </div>
             <h1 style={{ fontSize: '2.2rem', color: 'var(--text-primary)' }}>
               Insights & Symptom Trends
             </h1>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              Cycle-synced pattern recognition mapped against clinical literature guidelines.
+              Cycle-synced pattern recognition mapped against clinical literature guidelines (ESHRE, ACOG, FIGO).
             </p>
           </div>
 
@@ -118,10 +134,12 @@ export default function InsightsTrendsPage() {
                 style={{
                   padding: '0.4rem 0.85rem',
                   borderRadius: 'var(--radius-full)',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  fontWeight: timeRange === t.id ? 600 : 500,
                   backgroundColor: timeRange === t.id ? 'var(--color-berry)' : 'transparent',
-                  color: timeRange === t.id ? '#FFFFFF' : 'var(--text-secondary)'
+                  color: timeRange === t.id ? '#FFFFFF' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 {t.label}
@@ -131,69 +149,50 @@ export default function InsightsTrendsPage() {
         </div>
       </div>
 
-      {/* Mandatory Clinical Transparency Banner */}
-      <div style={{ 
-        backgroundColor: 'var(--color-berry-subtle)', 
-        border: '1px solid var(--color-blush-border)', 
-        borderRadius: '12px', 
-        padding: '1rem 1.25rem',
-        marginBottom: '2rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '1rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <ShieldCheck size={22} color="var(--color-berry)" style={{ flexShrink: 0 }} />
-          <div style={{ fontSize: '0.84rem', color: 'var(--color-berry)', lineHeight: 1.45 }}>
-            <strong>Demonstration Status:</strong> All pattern matching rules are unvalidated educational demonstrations based on published literature (ESHRE, ACOG, Rotterdam, FIGO). These patterns represent <em>potential topics for clinician review</em>, <strong>never clinical diagnoses</strong>.
-          </div>
-        </div>
-        <button
-          onClick={() => setIsDisclaimerModalOpen(true)}
-          className="btn btn-outline"
-          style={{ fontSize: '0.78rem', padding: '0.35rem 0.8rem', backgroundColor: '#FFFFFF' }}
-        >
-          View Clinical Methodology
-        </button>
-      </div>
-
-      {/* 3 Core Evidence-Based Pattern Cards */}
+      {/* Detected Patterns Cards */}
       <div style={{ marginBottom: '2.5rem' }}>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-          Evidence-Based Pattern Analyses
-        </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--text-primary)', margin: 0 }}>
+              Literature-Referenced Clinical Patterns
+            </h2>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              Observational criteria intended to prepare discussion points for your doctor visit.
+            </span>
+          </div>
+          <span className="badge badge-berry" style={{ fontSize: '0.72rem' }}>
+            Non-Diagnostic
+          </span>
+        </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
           {detectedPatterns.map((pattern) => (
             <div 
-              key={pattern.id}
-              className="saheli-card"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
+              key={pattern.id} 
+              className="saheli-card" 
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
                 justifyContent: 'space-between',
-                borderTop: `4px solid ${
-                  pattern.badgeColor === 'berry' 
-                    ? 'var(--color-berry)' 
-                    : pattern.badgeColor === 'sage' 
-                      ? 'var(--color-sage)' 
-                      : 'var(--color-terracotta)'
-                }`
+                borderLeft: pattern.matched ? '4px solid var(--color-berry)' : '1px solid var(--border-card)'
               }}
             >
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <span className={`badge badge-${pattern.badgeColor || 'berry'}`}>
                     {pattern.category}
                   </span>
-                  <span className={`badge ${pattern.matched ? 'badge-berry' : 'badge-sage'}`} style={{ fontSize: '0.68rem' }}>
-                    {pattern.matched ? 'Pattern Flagged' : 'Within Normal Range'}
+                  <span className="badge" style={{ 
+                    fontSize: '0.7rem', 
+                    backgroundColor: pattern.matched ? 'var(--color-berry-subtle)' : 'var(--bg-secondary)',
+                    color: pattern.matched ? 'var(--color-berry)' : 'var(--text-muted)',
+                    border: '1px solid var(--border-card)'
+                  }}>
+                    {pattern.matched ? pattern.severity : 'Threshold Unmet'}
                   </span>
                 </div>
 
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                <h3 style={{ fontSize: '1.18rem', marginBottom: '0.45rem', color: 'var(--text-primary)' }}>
                   {pattern.title}
                 </h3>
 
@@ -203,9 +202,17 @@ export default function InsightsTrendsPage() {
 
                 {/* Evidence points */}
                 <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '0.85rem', marginBottom: '1rem', border: '1px solid var(--border-card)' }}>
-                  <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--color-berry)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                    Evidence from Diary ({pattern.evidence?.length || 0}):
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--color-berry)', textTransform: 'uppercase' }}>
+                      Evidence from Diary ({pattern.evidence?.length || 0}):
+                    </span>
+                    {pattern.dateRange && (
+                      <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                        {pattern.dateRange.start} to {pattern.dateRange.end}
+                      </span>
+                    )}
                   </div>
+
                   {(pattern.evidence || []).length > 0 ? (
                     <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                       {pattern.evidence.map((ev, i) => (
@@ -224,7 +231,7 @@ export default function InsightsTrendsPage() {
 
               <div>
                 <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '0.75rem', fontStyle: 'italic' }}>
-                  * {pattern.status} — Literature: {pattern.literatureBasis.split(';')[0]}
+                  * {pattern.status} — Reference: {pattern.literatureBasis.split(';')[0]}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem' }}>
@@ -232,6 +239,7 @@ export default function InsightsTrendsPage() {
                     Add to Doctor Brief
                   </Link>
                   <button
+                    type="button"
                     onClick={() => setActiveEvidenceRule(pattern)}
                     className="btn btn-blush"
                     style={{ fontSize: '0.8rem', padding: '0.4rem 0.85rem' }}
@@ -260,7 +268,7 @@ export default function InsightsTrendsPage() {
               <Zap size={18} color="var(--color-berry)" />
               <span>Energy & Mood Across Phases</span>
             </div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Score (1–5)</span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Rating (1–5)</span>
           </div>
 
           <div style={{ width: '100%', height: 240, marginTop: '0.5rem' }}>
@@ -278,7 +286,7 @@ export default function InsightsTrendsPage() {
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '0.75rem', fontSize: '0.78rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#4E6E58', fontWeight: 600 }}>
-              <span style={{ width: '10px', height: '3px', backgroundColor: '#4E6E58' }} /> Energy
+              <span style={{ width: '10px', height: '3px', backgroundColor: '#4E6E58' }} /> Vitality
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#6B1D3A', fontWeight: 600 }}>
               <span style={{ width: '10px', height: '3px', backgroundColor: '#6B1D3A' }} /> Mood
@@ -354,7 +362,7 @@ export default function InsightsTrendsPage() {
                 </div>
               ))
             ) : (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontStyle: 'italic', padding: '1rem 0' }}>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontStyle: 'italic', padding: '1rem 0', textAlign: 'center' }}>
                 No symptoms recorded yet to display frequency.
               </div>
             )}

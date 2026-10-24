@@ -1,20 +1,39 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { SAMPLE_PROFILES, formatDate, getOffsetDate } from '../data/sampleProfiles';
+import { SAMPLE_PROFILES, DEFAULT_CONSENT_SETTINGS, formatDate } from '../data/sampleProfiles';
 import { CLINICAL_RULES } from '../data/clinicalRules';
+import { 
+  calculateCycleDayForDate, 
+  computeSummaryMetricsFromLogs, 
+  getEstimatedNextPeriod 
+} from '../utils/cycleCalculations';
 
 const AppContext = createContext();
 
 const STORAGE_KEY_PROFILE = 'saheli_profile_id';
 const STORAGE_KEY_PROFILES_DATA = 'saheli_profiles_data';
 
+// Helper to normalize question objects
+function normalizeQuestions(questions = []) {
+  return questions.map((q, idx) => {
+    if (typeof q === 'string') {
+      return { id: `q-${idx}-${Date.now()}`, text: q, inReport: true };
+    }
+    return {
+      id: q.id || `q-${idx}`,
+      text: q.text || '',
+      inReport: q.inReport !== false
+    };
+  });
+}
+
 export function AppProvider({ children }) {
   // Load current active profile id
   const [profileId, setProfileId] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_PROFILE);
-      return saved && SAMPLE_PROFILES[saved] ? saved : 'priya';
+      return saved && (SAMPLE_PROFILES[saved] || saved === 'amara') ? saved : 'amara';
     } catch {
-      return 'priya';
+      return 'amara';
     }
   });
 
@@ -23,7 +42,21 @@ export function AppProvider({ children }) {
     try {
       const savedData = localStorage.getItem(STORAGE_KEY_PROFILES_DATA);
       if (savedData) {
-        return JSON.parse(savedData);
+        const parsed = JSON.parse(savedData);
+        // Ensure consentSettings and normalized questions exist on all loaded profiles
+        const merged = { ...SAMPLE_PROFILES };
+        Object.keys(parsed).forEach((k) => {
+          merged[k] = {
+            ...SAMPLE_PROFILES[k],
+            ...parsed[k],
+            consentSettings: {
+              ...DEFAULT_CONSENT_SETTINGS,
+              ...(parsed[k]?.consentSettings || {})
+            },
+            customQuestions: normalizeQuestions(parsed[k]?.customQuestions || SAMPLE_PROFILES[k]?.customQuestions)
+          };
+        });
+        return merged;
       }
     } catch (e) {
       console.error('Failed to load local storage profiles:', e);
@@ -31,8 +64,11 @@ export function AppProvider({ children }) {
     return SAMPLE_PROFILES;
   });
 
-  // Current active profile
-  const currentProfile = profiles[profileId] || SAMPLE_PROFILES.priya;
+  // Mobile navigation drawer state
+  const [isMobileNavDrawerOpen, setIsMobileNavDrawerOpen] = useState(false);
+
+  // Active profile
+  const currentProfile = profiles[profileId] || SAMPLE_PROFILES.amara;
   const logs = currentProfile.logs || {};
 
   // Persist whenever profiles or profileId changes
@@ -71,7 +107,7 @@ export function AppProvider({ children }) {
   // Reset to initial sample data
   const resetToFactorySampleData = () => {
     setProfiles(SAMPLE_PROFILES);
-    setProfileId('priya');
+    setProfileId('amara');
     localStorage.removeItem(STORAGE_KEY_PROFILES_DATA);
     localStorage.removeItem(STORAGE_KEY_PROFILE);
     showToast('Reset to original sample data successfully');
@@ -83,7 +119,8 @@ export function AppProvider({ children }) {
       ...SAMPLE_PROFILES,
       guest: {
         ...SAMPLE_PROFILES.guest,
-        logs: {}
+        logs: {},
+        customQuestions: normalizeQuestions(SAMPLE_PROFILES.guest.customQuestions)
       }
     };
     setProfiles(blankProfiles);
@@ -92,41 +129,73 @@ export function AppProvider({ children }) {
     showToast('All local logs and stored data cleared.');
   };
 
-  // Add or update daily log entry
-  const saveEntry = (entryData) => {
-    const dateKey = entryData.date || formatDate(new Date());
-    
+  // Today key
+  const todayKey = formatDate(new Date());
+  const todayEntry = logs[todayKey] || null;
+
+  // Single source for Cycle Day and Phase calculations
+  const getCycleDayInfo = (dateStr = todayKey) => {
+    return calculateCycleDayForDate(dateStr, logs, currentProfile);
+  };
+
+  // Dynamic Today Cycle Metrics
+  const todayCycleMetrics = useMemo(() => {
+    return calculateCycleDayForDate(todayKey, logs, currentProfile);
+  }, [todayKey, logs, currentProfile]);
+
+  // Estimated next period
+  const estimatedNextPeriod = useMemo(() => {
+    return getEstimatedNextPeriod(logs, currentProfile, todayKey);
+  }, [logs, currentProfile, todayKey]);
+
+  // Save entry (supports async feedback)
+  const [isSavingEntry, setIsSavingEntry] = useState(false);
+  const saveEntry = async (entryData) => {
+    setIsSavingEntry(true);
+    const dateKey = entryData.date || todayKey;
+
     // Check if severe pain was entered (9 or 10) to proactively suggest urgent care guide
-    if (entryData.painScore >= 9) {
+    if (Number(entryData.painScore) >= 9) {
       setIsUrgentModalOpen(true);
     }
 
-    setProfiles((prev) => {
-      const active = prev[profileId] || SAMPLE_PROFILES.priya;
-      const updatedLogs = {
-        ...active.logs,
-        [dateKey]: {
-          ...entryData,
-          date: dateKey,
-          updatedAt: new Date().toISOString()
-        }
-      };
-      return {
-        ...prev,
-        [profileId]: {
-          ...active,
-          logs: updatedLogs
-        }
-      };
-    });
+    try {
+      // Small simulated latency for accessible UX feedback
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-    showToast(`Saved daily symptom check-in for ${dateKey}`);
+      setProfiles((prev) => {
+        const active = prev[profileId] || SAMPLE_PROFILES.amara;
+        const updatedLogs = {
+          ...active.logs,
+          [dateKey]: {
+            ...entryData,
+            date: dateKey,
+            updatedAt: new Date().toISOString()
+          }
+        };
+        return {
+          ...prev,
+          [profileId]: {
+            ...active,
+            logs: updatedLogs
+          }
+        };
+      });
+
+      showToast(`Saved check-in for ${dateKey}`);
+      return { success: true };
+    } catch (err) {
+      showToast('Failed to save entry. Please try again.', 'error');
+      return { success: false, error: err };
+    } finally {
+      setIsSavingEntry(false);
+    }
   };
 
   // Delete an entry
   const deleteEntry = (dateKey) => {
     setProfiles((prev) => {
-      const active = prev[profileId] || SAMPLE_PROFILES.priya;
+      const active = prev[profileId] || SAMPLE_PROFILES.amara;
       const updatedLogs = { ...active.logs };
       delete updatedLogs[dateKey];
       return {
@@ -140,7 +209,7 @@ export function AppProvider({ children }) {
     showToast(`Deleted check-in entry for ${dateKey}`, 'info');
   };
 
-  // Update profile attributes (name, doctor, questions)
+  // Update profile attributes
   const updateProfile = (updates) => {
     setProfiles((prev) => ({
       ...prev,
@@ -152,38 +221,94 @@ export function AppProvider({ children }) {
     showToast('Profile preferences updated');
   };
 
-  // Add a custom question for the doctor
+  // Update user consent preferences
+  const updateConsentSettings = (consentUpdates) => {
+    setProfiles((prev) => {
+      const active = prev[profileId] || SAMPLE_PROFILES.amara;
+      return {
+        ...prev,
+        [profileId]: {
+          ...active,
+          consentSettings: {
+            ...DEFAULT_CONSENT_SETTINGS,
+            ...(active.consentSettings || {}),
+            ...consentUpdates
+          }
+        }
+      };
+    });
+  };
+
+  // Question Management: Add
   const addDoctorQuestion = (questionText) => {
-    if (!questionText.trim()) return;
-    const currentQuestions = currentProfile.customQuestions || [];
+    if (!questionText || !questionText.trim()) return;
+    const currentQuestions = normalizeQuestions(currentProfile.customQuestions);
+    const newQ = {
+      id: `q-${Date.now()}`,
+      text: questionText.trim(),
+      inReport: true
+    };
     updateProfile({
-      customQuestions: [...currentQuestions, questionText.trim()]
+      customQuestions: [...currentQuestions, newQ]
     });
     showToast('Added discussion question to clinician brief');
   };
 
-  // Remove a question
-  const removeDoctorQuestion = (index) => {
-    const currentQuestions = [...(currentProfile.customQuestions || [])];
-    currentQuestions.splice(index, 1);
+  // Question Management: Edit
+  const editDoctorQuestion = (id, newText) => {
+    if (!newText || !newText.trim()) return;
+    const currentQuestions = normalizeQuestions(currentProfile.customQuestions);
+    const updated = currentQuestions.map((q) =>
+      q.id === id ? { ...q, text: newText.trim() } : q
+    );
+    updateProfile({ customQuestions: updated });
+    showToast('Question updated');
+  };
+
+  // Question Management: Reorder (direction: -1 for up, 1 for down)
+  const moveDoctorQuestion = (index, direction) => {
+    const currentQuestions = [...normalizeQuestions(currentProfile.customQuestions)];
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= currentQuestions.length) return;
+    
+    const [moved] = currentQuestions.splice(index, 1);
+    currentQuestions.splice(targetIndex, 0, moved);
     updateProfile({ customQuestions: currentQuestions });
+  };
+
+  // Question Management: Toggle Report Inclusion
+  const toggleDoctorQuestionInReport = (id) => {
+    const currentQuestions = normalizeQuestions(currentProfile.customQuestions);
+    const updated = currentQuestions.map((q) =>
+      q.id === id ? { ...q, inReport: !q.inReport } : q
+    );
+    updateProfile({ customQuestions: updated });
+  };
+
+  // Question Management: Remove
+  const removeDoctorQuestion = (id) => {
+    const currentQuestions = normalizeQuestions(currentProfile.customQuestions);
+    const filtered = currentQuestions.filter((q) => q.id !== id);
+    updateProfile({ customQuestions: filtered });
     showToast('Question removed from brief', 'info');
   };
 
   // Export all data as JSON
   const exportDataJSON = () => {
     const dataToExport = {
-      exportVersion: '1.0',
+      exportVersion: '2.0',
       exportedAt: new Date().toISOString(),
       activeProfileId: profileId,
-      profile: currentProfile,
-      allProfiles: profiles,
-      disclaimer: 'Saheli local demo backup. Unvalidated demonstration data.'
+      profile: {
+        ...currentProfile,
+        customQuestions: normalizeQuestions(currentProfile.customQuestions)
+      },
+      disclaimer: 'Saheli local-first symptom diary backup. Unvalidated demonstration data.'
     };
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `saheli_health_diary_${profileId}_${formatDate(new Date())}.json`);
+    downloadAnchor.setAttribute('download', `saheli_diary_${profileId}_${formatDate(new Date())}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -194,22 +319,28 @@ export function AppProvider({ children }) {
   const importDataJSON = (jsonString) => {
     try {
       const parsed = JSON.parse(jsonString);
-      if (parsed.allProfiles) {
-        setProfiles(parsed.allProfiles);
-        if (parsed.activeProfileId && parsed.allProfiles[parsed.activeProfileId]) {
-          setProfileId(parsed.activeProfileId);
-        }
-        showToast('Successfully restored backup data');
-        return { success: true };
-      } else if (parsed.profile) {
+      if (parsed.profile) {
         setProfiles((prev) => ({
           ...prev,
-          [parsed.activeProfileId || 'guest']: parsed.profile
+          [parsed.activeProfileId || 'guest']: {
+            ...parsed.profile,
+            customQuestions: normalizeQuestions(parsed.profile.customQuestions),
+            consentSettings: {
+              ...DEFAULT_CONSENT_SETTINGS,
+              ...(parsed.profile.consentSettings || {})
+            }
+          }
         }));
-        showToast('Restored profile entries');
+        setProfileId(parsed.activeProfileId || 'guest');
+        showToast('Successfully restored backup records');
+        return { success: true };
+      } else if (parsed.allProfiles) {
+        setProfiles(parsed.allProfiles);
+        if (parsed.activeProfileId) setProfileId(parsed.activeProfileId);
+        showToast('Successfully restored backup records');
         return { success: true };
       } else {
-        throw new Error('Invalid backup format');
+        throw new Error('Unrecognized diary format');
       }
     } catch (err) {
       showToast('Failed to import file: invalid format', 'error');
@@ -217,7 +348,7 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Evaluate clinical rules against current logs
+  // Evaluate clinical rules dynamically against current logs
   const detectedPatterns = useMemo(() => {
     return CLINICAL_RULES.map((rule) => {
       const evaluation = rule.evaluate(logs, currentProfile);
@@ -228,70 +359,43 @@ export function AppProvider({ children }) {
     });
   }, [logs, currentProfile]);
 
-  // Overall metrics summary
+  // Overall metrics summary strictly from logs
   const summaryMetrics = useMemo(() => {
-    const entries = Object.values(logs);
-    const totalEntries = entries.length;
-    if (totalEntries === 0) {
-      return {
-        totalLoggedDays: 0,
-        averagePainScore: 0,
-        severePainDaysCount: 0,
-        heavyFlowDaysCount: 0,
-        functionalImpactDaysCount: 0,
-        mostFrequentSymptoms: []
-      };
-    }
-
-    const totalPain = entries.reduce((acc, curr) => acc + (curr.painScore || 0), 0);
-    const averagePainScore = (totalPain / totalEntries).toFixed(1);
-    const severePainDaysCount = entries.filter((e) => (e.painScore || 0) >= 7).length;
-    const heavyFlowDaysCount = entries.filter((e) => e.bleeding === 'Heavy').length;
-    const functionalImpactDaysCount = entries.filter((e) => e.functionalImpact === true).length;
-
-    // Symptom frequency count
-    const symptomMap = {};
-    entries.forEach((e) => {
-      (e.symptoms || []).forEach((s) => {
-        symptomMap[s] = (symptomMap[s] || 0) + 1;
-      });
-    });
-
-    const mostFrequentSymptoms = Object.entries(symptomMap)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-
-    return {
-      totalLoggedDays: totalEntries,
-      averagePainScore,
-      severePainDaysCount,
-      heavyFlowDaysCount,
-      functionalImpactDaysCount,
-      mostFrequentSymptoms
-    };
+    return computeSummaryMetricsFromLogs(logs);
   }, [logs]);
-
-  // Today's entry (if exists)
-  const todayKey = formatDate(new Date());
-  const todayEntry = logs[todayKey] || null;
 
   return (
     <AppContext.Provider
       value={{
         profileId,
-        currentProfile,
+        currentProfile: {
+          ...currentProfile,
+          customQuestions: normalizeQuestions(currentProfile.customQuestions),
+          consentSettings: currentProfile.consentSettings || DEFAULT_CONSENT_SETTINGS,
+          currentCycleDay: todayCycleMetrics.cycleDay,
+          currentPhase: todayCycleMetrics.phase,
+          daysUntilNextPeriod: estimatedNextPeriod.daysUntil
+        },
         profiles,
         logs,
         todayKey,
         todayEntry,
+        todayCycleMetrics,
+        estimatedNextPeriod,
         summaryMetrics,
         detectedPatterns,
+        getCycleDayInfo,
         switchProfile,
         saveEntry,
+        isSavingEntry,
         deleteEntry,
         updateProfile,
+        updateConsentSettings,
         addDoctorQuestion,
+        editDoctorQuestion,
+        moveDoctorQuestion,
         removeDoctorQuestion,
+        toggleDoctorQuestionInReport,
         exportDataJSON,
         importDataJSON,
         resetToFactorySampleData,
@@ -305,7 +409,9 @@ export function AppProvider({ children }) {
         activeEvidenceRule,
         setActiveEvidenceRule,
         activeEduArticle,
-        setActiveEduArticle
+        setActiveEduArticle,
+        isMobileNavDrawerOpen,
+        setIsMobileNavDrawerOpen
       }}
     >
       {children}

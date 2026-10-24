@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
-export default function CycleWheel({ cycleDay = 14, totalCycleLength = 29, currentPhase = 'Ovulatory Window' }) {
-  const { currentProfile } = useApp();
+export default function CycleWheel({ 
+  cycleDay = 1, 
+  totalCycleLength = 28, 
+  currentPhase = 'Menstrual Phase' 
+}) {
+  const { currentProfile, summaryMetrics } = useApp();
   const [hoveredPhase, setHoveredPhase] = useState(null);
 
   // SVG parameters
@@ -12,9 +16,9 @@ export default function CycleWheel({ cycleDay = 14, totalCycleLength = 29, curre
   const center = size / 2;
   const circumference = 2 * Math.PI * radius;
 
-  // Phase Definitions for a standard or personalized cycle length
-  const periodLength = currentProfile.typicalPeriodLength || 5;
-  const ovulationDay = Math.round(totalCycleLength - 14); // e.g. Day 15 in 29-day cycle
+  // Phase Definitions for personalized cycle length
+  const periodLength = Number(currentProfile.typicalPeriodLength) || 5;
+  const ovulationDay = Math.max(periodLength + 2, totalCycleLength - 14);
   const fertileStart = Math.max(periodLength + 1, ovulationDay - 3);
   const fertileEnd = Math.min(totalCycleLength - 1, ovulationDay + 1);
 
@@ -58,6 +62,8 @@ export default function CycleWheel({ cycleDay = 14, totalCycleLength = 29, curre
   const indicatorX = center + radius * Math.cos(angleRad);
   const indicatorY = center + radius * Math.sin(angleRad);
 
+  const hasLogs = summaryMetrics.totalLoggedDays > 0;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ position: 'relative', width: size, height: size }}>
@@ -76,7 +82,7 @@ export default function CycleWheel({ cycleDay = 14, totalCycleLength = 29, curre
           {phases.map((p) => {
             const startFrac = (p.startDay - 1) / totalCycleLength;
             const endFrac = p.endDay / totalCycleLength;
-            const sliceFrac = endFrac - startFrac;
+            const sliceFrac = Math.max(0, endFrac - startFrac);
             const strokeDash = `${sliceFrac * circumference} ${circumference}`;
             const strokeOffset = -startFrac * circumference;
 
@@ -108,11 +114,11 @@ export default function CycleWheel({ cycleDay = 14, totalCycleLength = 29, curre
           <circle
             cx={indicatorX}
             cy={indicatorY}
-            r={11}
+            r={10}
             fill="#FFFFFF"
             stroke="var(--color-berry)"
-            strokeWidth={3.5}
-            style={{ filter: 'drop-shadow(0 2px 4px rgba(107, 29, 58, 0.35))' }}
+            strokeWidth={3}
+            style={{ filter: 'drop-shadow(0 2px 4px rgba(35, 28, 30, 0.2))' }}
           />
           <circle
             cx={indicatorX}
@@ -134,21 +140,21 @@ export default function CycleWheel({ cycleDay = 14, totalCycleLength = 29, curre
             justifyContent: 'center',
             textAlign: 'center',
             padding: '1rem',
-            background: 'radial-gradient(circle, #FFFFFF 60%, var(--bg-primary) 100%)',
+            background: 'radial-gradient(circle, #FFFFFF 65%, var(--bg-primary) 100%)',
             pointerEvents: 'none'
           }}
         >
-          <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>
-            Current Cycle
+          <span style={{ fontSize: '0.68rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.06em' }}>
+            {hasLogs ? 'Estimated Cycle' : 'Starter Profile'}
           </span>
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', fontWeight: 600, color: 'var(--color-berry)', lineHeight: 1.05 }}>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '2.3rem', fontWeight: 600, color: 'var(--color-berry)', lineHeight: 1.05 }}>
             Day {cycleDay}
           </div>
           <span className="badge badge-berry" style={{ marginTop: '0.35rem', fontSize: '0.72rem' }}>
             {currentPhase}
           </span>
-          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginTop: '0.4rem' }}>
-            Cycle length: ~{totalCycleLength} days
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+            ~{totalCycleLength}-day cycle
           </span>
         </div>
       </div>
