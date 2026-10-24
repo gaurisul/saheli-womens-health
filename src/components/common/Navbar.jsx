@@ -90,7 +90,7 @@ export default function Navbar() {
             src="/logo.png" 
             alt="Logo" 
             style={{ 
-              height: '40px', 
+              height: '44px', 
               width: 'auto', 
               objectFit: 'contain',
               display: 'block'

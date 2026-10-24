@@ -43,7 +43,7 @@ export default function AuthPage({ isSignUp = false }) {
             src="/logo.png" 
             alt="Logo" 
             style={{ 
-              height: '46px', 
+              height: '52px', 
               width: 'auto', 
               objectFit: 'contain',
               display: 'block'
