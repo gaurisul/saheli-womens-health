@@ -26,32 +26,18 @@ export default function LandingPage() {
           alignItems: 'center'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--color-berry)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#FFFFFF',
-            boxShadow: '0 2px 8px var(--color-berry-glow)'
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M12 7c-2 0-3.5 1.5-3.5 3.5S10 14 12 16c2-2 3.5-3.5 3.5-5.5S14 7 12 7z" fill="#FAF7F2" stroke="none"/>
-            </svg>
-          </div>
-          <div>
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600, color: 'var(--color-berry)', lineHeight: 1 }}>
-              Saheli
-            </span>
-            <span style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              Symptom-to-Clinician Bridge
-            </span>
-          </div>
-        </div>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }} aria-label="Home">
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            style={{ 
+              height: '48px', 
+              width: 'auto', 
+              objectFit: 'contain',
+              display: 'block'
+            }} 
+          />
+        </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <Link to="/login" className="btn btn-outline" style={{ fontSize: '0.85rem' }}>

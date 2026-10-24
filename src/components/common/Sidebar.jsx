@@ -61,34 +61,23 @@ export default function Sidebar() {
           to="/" 
           onClick={handleNavClick}
           style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.75rem'
-          }}
-        >
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--color-berry)',
-            display: 'flex',
+            display: 'inline-flex', 
             alignItems: 'center',
-            justifyContent: 'center',
-            color: '#FFFFFF'
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M12 7c-2 0-3.5 1.5-3.5 3.5S10 14 12 16c2-2 3.5-3.5 3.5-5.5S14 7 12 7z" fill="#FAF7F2" stroke="none"/>
-            </svg>
-          </div>
-          <div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', fontWeight: 600, color: 'var(--color-berry)', margin: 0, lineHeight: 1.1 }}>
-              Saheli
-            </h1>
-            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: 600 }}>
-              Clinician Bridge
-            </span>
-          </div>
+            textDecoration: 'none',
+            padding: '0.25rem 0.25rem'
+          }}
+          aria-label="Home"
+        >
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            style={{ 
+              height: '52px', 
+              width: 'auto', 
+              objectFit: 'contain',
+              display: 'block'
+            }} 
+          />
         </Link>
 
         {/* Mobile Close Button */}

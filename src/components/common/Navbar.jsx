@@ -80,34 +80,22 @@ export default function Navbar() {
         <Link 
           to="/" 
           style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.65rem' 
-          }}
-        >
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--color-berry)',
-            display: 'flex',
+            display: 'inline-flex', 
             alignItems: 'center',
-            justifyContent: 'center',
-            color: '#FFFFFF'
-          }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M12 7c-2 0-3.5 1.5-3.5 3.5S10 14 12 16c2-2 3.5-3.5 3.5-5.5S14 7 12 7z" fill="#FAF7F2" stroke="none"/>
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-berry)', lineHeight: 1.1 }}>
-              Saheli
-            </div>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: 600 }}>
-              Women's Health
-            </div>
-          </div>
+            textDecoration: 'none'
+          }}
+          aria-label="Home"
+        >
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            style={{ 
+              height: '40px', 
+              width: 'auto', 
+              objectFit: 'contain',
+              display: 'block'
+            }} 
+          />
         </Link>
       </div>
 

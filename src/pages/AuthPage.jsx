@@ -38,25 +38,17 @@ export default function AuthPage({ isSignUp = false }) {
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid var(--border-card)', backgroundColor: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--color-berry)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#FFFFFF'
-          }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M12 7c-2 0-3.5 1.5-3.5 3.5S10 14 12 16c2-2 3.5-3.5 3.5-5.5S14 7 12 7z" fill="#FAF7F2" stroke="none"/>
-            </svg>
-          </div>
-          <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-berry)' }}>
-            Saheli
-          </span>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }} aria-label="Home">
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            style={{ 
+              height: '46px', 
+              width: 'auto', 
+              objectFit: 'contain',
+              display: 'block'
+            }} 
+          />
         </Link>
         <Link to="/dashboard" className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
           Skip to Dashboard →
