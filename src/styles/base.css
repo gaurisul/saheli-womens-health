@@ -1,0 +1,538 @@
+/* Base Styles, Typography, Layout & Print Setup */
+@import './variables.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+/* Headings with Editorial Serif */
+h1, h2, h3, .font-serif, .editorial-heading {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 2.2rem;
+}
+
+h2 {
+  font-size: 1.65rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--color-berry);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-berry-dark);
+}
+
+button {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible, 
+textarea:focus-visible {
+  outline: 2px solid var(--color-berry) !important;
+  outline-offset: 2px !important;
+}
+
+input, select, textarea {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+/* App Shell Layout */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s ease;
+}
+
+.page-content-wrapper {
+  flex: 1;
+  padding: 2rem 2.5rem 4rem;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0;
+    padding-bottom: 74px; /* Space for mobile nav */
+  }
+
+  .page-content-wrapper {
+    padding: 1.25rem 1rem 3.5rem;
+  }
+}
+
+/* Common Card Element */
+.saheli-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.saheli-card:hover {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-elevated);
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-card);
+}
+
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-primary {
+  background-color: var(--color-berry);
+  color: var(--text-inverse);
+  box-shadow: 0 1px 4px rgba(107, 29, 58, 0.25);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-berry-dark);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-card);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-subtle);
+}
+
+.btn-blush {
+  background-color: var(--color-blush);
+  color: var(--color-berry);
+  border: 1px solid var(--color-blush-border);
+}
+
+.btn-blush:hover:not(:disabled) {
+  background-color: var(--color-blush-active);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-berry);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--color-berry-subtle);
+  border-color: var(--color-berry);
+}
+
+.btn-urgent {
+  background-color: var(--color-critical-light);
+  color: var(--color-critical);
+  border: 1px solid var(--color-critical-border);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.85rem;
+}
+
+.btn-urgent:hover:not(:disabled) {
+  background-color: #FEE2E2;
+}
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-full);
+}
+
+.badge-berry {
+  background-color: var(--color-berry-subtle);
+  color: var(--color-berry);
+  border: 1px solid var(--color-blush-border);
+}
+
+.badge-sage {
+  background-color: var(--color-sage-light);
+  color: var(--color-sage-dark);
+  border: 1px solid var(--color-sage-border);
+}
+
+.badge-terracotta {
+  background-color: var(--color-terracotta-light);
+  color: var(--color-terracotta-dark);
+  border: 1px solid var(--color-terracotta-border);
+}
+
+.badge-amber {
+  background-color: var(--color-amber-light);
+  color: var(--color-amber-dark);
+  border: 1px solid var(--color-amber-border);
+}
+
+/* Signal Pills */
+.signal-pill-strong {
+  background-color: var(--signal-strong-bg);
+  color: var(--signal-strong-text);
+  border: 1px solid var(--signal-strong-border);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.signal-pill-moderate {
+  background-color: var(--signal-moderate-bg);
+  color: var(--signal-moderate-text);
+  border: 1px solid var(--signal-moderate-border);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.signal-pill-early {
+  background-color: var(--signal-early-bg);
+  color: var(--signal-early-text);
+  border: 1px solid var(--signal-early-border);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Disclaimer Callout */
+.disclaimer-banner {
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-card);
+  padding: 0.75rem 2.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .disclaimer-banner {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Modal Backdrop & Container */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(35, 28, 30, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  max-width: 620px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-popover);
+  border: 1px solid var(--border-card);
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}
+
+/* Mira Editorial Typography & Header Utilities */
+.page-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.page-editorial-title {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.page-editorial-title em {
+  font-style: italic;
+  color: var(--color-berry);
+}
+
+.page-subtitle {
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+  max-width: 680px;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* Toggle Switch */
+.saheli-toggle-btn {
+  width: 40px;
+  height: 22px;
+  border-radius: 9999px;
+  background-color: #E2DBD5;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: none;
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.saheli-toggle-btn.active {
+  background-color: var(--color-berry);
+}
+
+.saheli-toggle-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.saheli-toggle-btn.active .saheli-toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* Accessible Checkbox */
+.saheli-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #D6CEC8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background-color: transparent;
+  flex-shrink: 0;
+  color: transparent;
+}
+
+.saheli-checkbox.checked {
+  background-color: var(--color-berry);
+  border-color: var(--color-berry);
+  color: #FFFFFF;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* PRINT STYLES - Clinician Report Friendly (A4) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    font-size: 10.5pt !important;
+  }
+
+  .no-print,
+  .sidebar,
+  .mobile-nav,
+  .top-navbar,
+  .disclaimer-banner,
+  .btn,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+
+  .page-content-wrapper {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .saheli-card, .printable-report {
+    border: 1px solid #D0D0D0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 1rem !important;
+    padding: 1.25rem !important;
+    background: #FFFFFF !important;
+  }
+
+  h1, h2, h3, h4 {
+    color: #000000 !important;
+  }
+
+  .printable-report {
+    display: block !important;
+    width: 100% !important;
+  }
+}

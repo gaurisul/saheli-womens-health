@@ -1,0 +1,92 @@
+/* Saheli Design System - Variables & Theme Tokens */
+:root {
+  /* Backgrounds */
+  --bg-primary: #FAF7F2;
+  --bg-secondary: #F4EFEB;
+  --bg-tertiary: #EFE7DE;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F8F3EE;
+
+  /* Primary Accent: Deep Berry / Burgundy */
+  --color-berry: #6B1D3A;
+  --color-berry-dark: #4F142A;
+  --color-berry-light: #89284D;
+  --color-berry-subtle: #F9EFF3;
+  --color-berry-glow: rgba(107, 29, 58, 0.08);
+
+  /* Selected States: Muted Blush Pink */
+  --color-blush: #F5E6EB;
+  --color-blush-border: #E4B5C6;
+  --color-blush-active: #EDD4DF;
+  --color-blush-hover: #F9EDF2;
+
+  /* Secondary Data: Sage Green */
+  --color-sage: #4E6E58;
+  --color-sage-dark: #3B5443;
+  --color-sage-light: #EDF3EE;
+  --color-sage-border: #BCD0C2;
+
+  /* Secondary Data: Soft Terracotta */
+  --color-terracotta: #C25E48;
+  --color-terracotta-dark: #9C4532;
+  --color-terracotta-light: #FCF1EE;
+  --color-terracotta-border: #E8ACA0;
+
+  /* Amber & Ochre for Warnings / Moderate Severity */
+  --color-amber: #B26A28;
+  --color-amber-dark: #8C4F1A;
+  --color-amber-light: #FBF4EB;
+  --color-amber-border: #E2C4A2;
+
+  /* Critical / Urgent Care Red */
+  --color-critical: #B91C1C;
+  --color-critical-light: #FDF2F2;
+  --color-critical-border: #FCA5A5;
+
+  /* Signal Pill Tokens */
+  --signal-strong-bg: #FBECEE;
+  --signal-strong-text: #89284D;
+  --signal-strong-border: #E4B5C6;
+  --signal-moderate-bg: #FCF1EE;
+  --signal-moderate-text: #9C4532;
+  --signal-moderate-border: #E8ACA0;
+  --signal-early-bg: #F4EFEB;
+  --signal-early-text: #5C5255;
+  --signal-early-border: #D8CEC5;
+
+  /* Text Colors */
+  --text-primary: #231C1E;
+  --text-secondary: #5C5255;
+  --text-muted: #8A7E82;
+  --text-light: #ABA0A4;
+  --text-inverse: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border-card: #EFE7DE;
+  --border-subtle: #E8DFD5;
+  --border-focus: #6B1D3A;
+
+  /* Restrained Shadows */
+  --shadow-subtle: 0 1px 3px rgba(35, 28, 30, 0.04), 0 1px 2px rgba(35, 28, 30, 0.02);
+  --shadow-card: 0 2px 10px rgba(35, 28, 30, 0.04), 0 1px 3px rgba(35, 28, 30, 0.02);
+  --shadow-elevated: 0 6px 20px rgba(35, 28, 30, 0.07), 0 2px 6px rgba(35, 28, 30, 0.03);
+  --shadow-popover: 0 12px 32px rgba(35, 28, 30, 0.12);
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-card: 16px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-serif: 'Newsreader', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Layout dimensions */
+  --sidebar-width: 250px;
+  --header-height: 64px;
+  --content-max-width: 1200px;
+}
