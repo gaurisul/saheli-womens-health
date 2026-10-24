@@ -8,9 +8,7 @@ import {
   Trash2, 
   User, 
   Save, 
-  Lock, 
-  AlertCircle,
-  CheckCircle2
+  Lock
 } from 'lucide-react';
 
 export default function PrivacySettingsPage() {
@@ -21,8 +19,7 @@ export default function PrivacySettingsPage() {
     importDataJSON, 
     resetToFactorySampleData, 
     clearAllData, 
-    profileId,
-    showToast
+    profileId
   } = useApp();
 
   // Local state for editable user preferences

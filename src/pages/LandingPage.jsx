@@ -31,7 +31,7 @@ export default function LandingPage() {
             src="/logo.png" 
             alt="Logo" 
             style={{ 
-              height: '54px', 
+              height: '48px', 
               width: 'auto', 
               objectFit: 'contain',
               display: 'block'

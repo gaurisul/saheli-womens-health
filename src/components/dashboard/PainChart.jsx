@@ -125,7 +125,7 @@ export default function PainChart() {
           </p>
         </div>
       ) : (
-        <div style={{ width: '100%', height: 260, marginTop: '0.5rem' }}>
+        <div style={{ width: '100%', height: 260, marginTop: '0.5rem', minWidth: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={cycleDaysData} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
               <defs>

@@ -91,7 +91,7 @@ export default function TodayDashboard() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
         
         {/* Top Row: Cycle Wheel + Latest Insight Card */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', alignItems: 'stretch' }}>
+        <div className="dashboard-two-col">
           
           {/* Cycle Overview Card with Circular Wheel */}
           <div className="saheli-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -126,7 +126,7 @@ export default function TodayDashboard() {
         </div>
 
         {/* Middle Row: Quick Check-in + Doctor Visit Prep */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', alignItems: 'stretch' }}>
+        <div className="dashboard-two-col">
           {/* Daily Check-in Card */}
           <QuickCheckinCard />
 

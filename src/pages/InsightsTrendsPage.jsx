@@ -165,7 +165,7 @@ export default function InsightsTrendsPage() {
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <div className="patterns-grid">
           {detectedPatterns.map((pattern) => (
             <div 
               key={pattern.id} 

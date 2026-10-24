@@ -63,21 +63,32 @@ export default function Sidebar() {
           style={{ 
             display: 'inline-flex', 
             alignItems: 'center',
+            gap: '0.65rem',
             textDecoration: 'none',
             padding: '0.25rem 0.25rem'
           }}
-          aria-label="Home"
+          aria-label="Saheli Home"
         >
           <img 
             src="/logo.png" 
-            alt="Logo" 
+            alt="Saheli Logo" 
             style={{ 
-              height: '60px', 
+              height: '46px', 
               width: 'auto', 
               objectFit: 'contain',
               display: 'block'
             }} 
           />
+          <span style={{ 
+            fontFamily: 'var(--font-serif)', 
+            fontSize: '1.6rem', 
+            fontWeight: 600, 
+            color: 'var(--color-berry)', 
+            letterSpacing: '-0.015em',
+            lineHeight: 1
+          }}>
+            Saheli
+          </span>
         </Link>
 
         {/* Mobile Close Button */}

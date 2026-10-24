@@ -75,11 +75,26 @@ export default function PainSlider({ value = 0, onChange, disabled = false }) {
         {descriptor.desc}
       </p>
 
+      <style>{`
+        .pain-pills-container {
+          display: grid;
+          grid-template-columns: repeat(11, 1fr);
+          gap: 0.35rem;
+          margin-bottom: 0.85rem;
+        }
+        @media (max-width: 520px) {
+          .pain-pills-container {
+            grid-template-columns: repeat(6, 1fr) !important;
+            gap: 0.4rem;
+          }
+        }
+      `}</style>
+
       {/* Number pills 0 through 10 */}
       <div 
         role="group" 
         aria-labelledby="pain-scale-label"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(11, 1fr)', gap: '0.3rem', marginBottom: '0.85rem' }}
+        className="pain-pills-container"
       >
         {Array.from({ length: 11 }).map((_, num) => {
           const isSelected = value === num;

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarCheck, Edit3, CheckCircle2, ArrowRight } from 'lucide-react';
+import { CalendarCheck, Edit3, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export default function QuickCheckinCard() {
-  const { todayEntry, todayKey, currentProfile, saveEntry, isSavingEntry, todayCycleMetrics } = useApp();
+  const { todayEntry, todayKey, saveEntry, isSavingEntry, todayCycleMetrics } = useApp();
 
   const [quickBleeding, setQuickBleeding] = useState('None');
   const [quickPain, setQuickPain] = useState(0);
