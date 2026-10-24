@@ -259,7 +259,7 @@ export default function InsightsTrendsPage() {
         Longitudinal Symptom Visualizations
       </h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="insights-chart-grid">
         
         {/* Chart 1: Energy & Mood by Cycle Phase */}
         <div className="saheli-card">
@@ -271,7 +271,7 @@ export default function InsightsTrendsPage() {
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Rating (1–5)</span>
           </div>
 
-          <div style={{ width: '100%', height: 240, marginTop: '0.5rem' }}>
+          <div style={{ width: '100%', height: 240, marginTop: '0.5rem', minWidth: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={phaseData} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-card)" />
@@ -304,7 +304,7 @@ export default function InsightsTrendsPage() {
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Days logged</span>
           </div>
 
-          <div style={{ width: '100%', height: 240, marginTop: '0.5rem' }}>
+          <div style={{ width: '100%', height: 240, marginTop: '0.5rem', minWidth: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={bleedingChartData} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-card)" />

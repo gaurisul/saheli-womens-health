@@ -155,8 +155,30 @@ export default function CycleCalendarPage() {
         </div>
       </div>
 
+      <style>{`
+        .calendar-cell-box {
+          min-height: 80px;
+          border-radius: 10px;
+          padding: 0.5rem;
+          transition: all 0.15s ease;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        @media (max-width: 600px) {
+          .calendar-cell-box {
+            min-height: 46px !important;
+            padding: 0.25rem 0.2rem !important;
+            border-radius: 6px !important;
+          }
+          .calendar-grid-days {
+            gap: 4px !important;
+          }
+        }
+      `}</style>
+
       {/* Two Column Layout: Full Monthly Calendar + Day Inspection Drawer */}
-      <div style={{ display: 'grid', gridTemplateColumns: selectedDayLog ? 'minmax(0, 2fr) minmax(320px, 1fr)' : '1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
+      <div className={selectedDayLog ? "calendar-layout-grid" : ""}>
         
         {/* Full Interactive Calendar Card */}
         <div className="saheli-card" style={{ padding: '1.75rem' }}>
@@ -218,9 +240,9 @@ export default function CycleCalendarPage() {
           </div>
 
           {/* Calendar Day Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+          <div className="calendar-grid-days" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
             {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-              <div key={`empty-cell-${i}`} style={{ minHeight: '85px', opacity: 0.2, backgroundColor: 'transparent' }} />
+              <div key={`empty-cell-${i}`} className="calendar-cell-box" style={{ opacity: 0.2, backgroundColor: 'transparent' }} />
             ))}
 
             {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -234,6 +256,7 @@ export default function CycleCalendarPage() {
               return (
                 <div
                   key={dateStr}
+                  className="calendar-cell-box"
                   onClick={() => setSelectedDayLog({ dateStr, log, dayNum })}
                   style={{
                     minHeight: '85px',
