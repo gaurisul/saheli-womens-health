@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, ArrowRight, AlertCircle, Calendar, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Sparkles, ArrowRight, AlertCircle, Calendar, FileText, PlusCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export default function InsightCard() {
@@ -15,7 +16,7 @@ export default function InsightCard() {
         <div className="card-header-row">
           <div className="card-title">
             <Sparkles size={18} color="var(--color-berry)" />
-            <span>Pattern Recognition</span>
+            <span>Observed Pattern for Clinical Discussion</span>
           </div>
           <span className="badge badge-berry" style={{ fontSize: '0.7rem' }}>
             Awaiting Data
@@ -40,15 +41,20 @@ export default function InsightCard() {
             Start Logging Your Symptoms
           </h3>
           <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: '320px', margin: '0 auto 1.25rem' }}>
-            Saheli analyzes your diary entries against published clinical criteria (ACOG, ESHRE) to identify discussion points for your doctor.
+            Saheli cross-references your diary records against published clinical criteria (ESHRE, ACOG) to highlight actionable patterns for your doctor.
           </p>
           <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-            Log at least 3 entries to activate pattern insights.
+            Log at least 3 daily check-ins to activate longitudinal pattern recognition.
           </div>
         </div>
 
-        <div style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--border-card)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          Evidence-based synthesis for 15-minute consultations
+        <div style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--border-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            Evidence-based synthesis for 15-minute consultations
+          </span>
+          <Link to="/checkin" className="btn btn-outline" style={{ fontSize: '0.78rem', padding: '0.35rem 0.8rem' }}>
+            Start Check-in
+          </Link>
         </div>
       </div>
     );
@@ -61,8 +67,8 @@ export default function InsightCard() {
           <Sparkles size={18} color="var(--color-berry)" />
           <span>Observed Pattern for Clinical Discussion</span>
         </div>
-        <span className="badge badge-berry" style={{ fontSize: '0.7rem' }}>
-          {matchedPattern?.severity || 'Active Review'}
+        <span className={`badge ${matchedPattern?.matched ? 'badge-berry' : 'badge-amber'}`} style={{ fontSize: '0.7rem' }}>
+          {matchedPattern?.matched ? (matchedPattern.severity || 'Criteria Matched') : 'Sub-threshold Observation'}
         </span>
       </div>
 
@@ -129,19 +135,29 @@ export default function InsightCard() {
             <span>Discussion agenda for your physician — not a clinical diagnosis or medical conclusion.</span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               Source: ESHRE / ACOG guidelines
             </span>
-            <button
-              type="button"
-              onClick={() => setActiveEvidenceRule(matchedPattern)}
-              className="btn btn-blush"
-              style={{ fontSize: '0.82rem', padding: '0.45rem 0.95rem' }}
-            >
-              <span>See Clinical Evidence</span>
-              <ArrowRight size={14} />
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <Link
+                to="/doctor-visit"
+                className="btn btn-outline"
+                style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
+              >
+                <PlusCircle size={13} />
+                <span>Add to Doctor Brief</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setActiveEvidenceRule(matchedPattern)}
+                className="btn btn-blush"
+                style={{ fontSize: '0.8rem', padding: '0.4rem 0.85rem' }}
+              >
+                <span>See Clinical Evidence</span>
+                <ArrowRight size={13} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

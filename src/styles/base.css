@@ -382,6 +382,24 @@ input, select, textarea {
   }
 }
 
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .calendar-layout-grid {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
@@ -413,8 +431,23 @@ input, select, textarea {
 
 .patterns-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .patterns-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.15rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .patterns-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
 }
 
 /* Reduced Motion */
