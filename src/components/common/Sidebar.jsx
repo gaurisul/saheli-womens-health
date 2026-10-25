@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { 
   Home, 
   CalendarCheck, 
@@ -7,9 +7,7 @@ import {
   TrendingUp, 
   Stethoscope, 
   Shield, 
-  X,
-  User,
-  Sparkles
+  X
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import BrandLogo from './BrandLogo';
@@ -113,46 +111,6 @@ export default function Sidebar() {
             </NavLink>
           );
         })}
-
-        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-card)' }}>
-          <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, padding: '0.25rem 0.75rem 0.4rem', letterSpacing: '0.06em' }}>
-            Reference & Demos
-          </div>
-          <NavLink
-            to="/"
-            onClick={handleNavClick}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.6rem 0.85rem',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '0.84rem',
-              color: 'var(--text-muted)',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <Sparkles size={16} />
-            <span>Saheli Overview & Intro</span>
-          </NavLink>
-          <NavLink
-            to="/login"
-            onClick={handleNavClick}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.6rem 0.85rem',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '0.84rem',
-              color: 'var(--text-muted)',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <User size={16} />
-            <span>Demo Auth & Personas</span>
-          </NavLink>
-        </div>
       </nav>
 
       {/* Patient Profile Card at bottom of sidebar */}
