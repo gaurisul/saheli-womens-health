@@ -27,6 +27,7 @@ const SYMPTOM_CATEGORIES = [
       'Insomnia / restless sleep',
       'Excessive daytime drowsiness',
       'Feeling cold / chills',
+      'Dizziness / lightheadedness',
       'Post-exertional exhaustion'
     ]
   },
