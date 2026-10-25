@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, User, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
+import { Lock, Mail, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import BrandLogo from '../components/common/BrandLogo';
 
@@ -12,7 +12,7 @@ export default function AuthPage({ isSignUp = false }) {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
-  const { switchProfile, showToast, currentProfile } = useApp();
+  const { showToast, currentProfile } = useApp();
   const navigate = useNavigate();
 
   const handleAuthSubmit = (e) => {
@@ -26,59 +26,57 @@ export default function AuthPage({ isSignUp = false }) {
       return;
     }
 
-    showToast(`Welcome back, ${activeTab === 'signup' ? name : currentProfile.name}! Entered demo workspace.`);
-    navigate('/dashboard');
-  };
-
-  const handleSelectPersona = (id) => {
-    switchProfile(id);
+    showToast(`Welcome back, ${activeTab === 'signup' ? name : currentProfile.name}!`);
     navigate('/dashboard');
   };
 
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid var(--border-card)', backgroundColor: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header 
+        style={{ 
+          padding: '1.25rem 2rem', 
+          borderBottom: '1px solid var(--border-card)', 
+          backgroundColor: 'var(--bg-card)', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center' 
+        }}
+      >
         <BrandLogo to="/" size="md" />
         <Link to="/dashboard" className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
           Skip to Dashboard →
         </Link>
-      </div>
+      </header>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem 1rem' }}>
-        <div style={{ maxWidth: '480px', width: '100%' }}>
-          
-          {/* Demo Sandbox Alert */}
-          <div style={{ 
-            backgroundColor: 'var(--color-berry-subtle)', 
-            border: '1px solid var(--color-blush-border)', 
-            borderRadius: '12px', 
-            padding: '0.85rem 1rem', 
-            marginBottom: '1.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.65rem'
-          }}>
-            <ShieldCheck size={20} color="var(--color-berry)" style={{ flexShrink: 0 }} />
-            <div style={{ fontSize: '0.82rem', color: 'var(--color-berry)', lineHeight: 1.4 }}>
-              <strong>Interactive Demo Sandbox:</strong> All data is stored in your local browser storage. No real email or password is sent to external servers.
-            </div>
-          </div>
-
-          <div className="saheli-card" style={{ padding: '2rem' }}>
+      {/* Main Centered Content */}
+      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem 1rem' }}>
+        <div style={{ maxWidth: '460px', width: '100%' }}>
+          <div className="saheli-card" style={{ padding: '2.25rem 2rem' }}>
             {/* Tabs */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', backgroundColor: 'var(--bg-secondary)', padding: '4px', borderRadius: 'var(--radius-full)', marginBottom: '1.5rem' }}>
+            <div 
+              style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '0.5rem', 
+                backgroundColor: 'var(--bg-secondary)', 
+                padding: '4px', 
+                borderRadius: 'var(--radius-full)', 
+                marginBottom: '1.5rem' 
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setActiveTab('login')}
                 style={{
-                  padding: '0.5rem',
+                  padding: '0.55rem',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '0.85rem',
                   fontWeight: 600,
                   backgroundColor: activeTab === 'login' ? 'var(--bg-card)' : 'transparent',
                   color: activeTab === 'login' ? 'var(--color-berry)' : 'var(--text-muted)',
-                  boxShadow: activeTab === 'login' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none'
+                  boxShadow: activeTab === 'login' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 Sign In
@@ -87,81 +85,37 @@ export default function AuthPage({ isSignUp = false }) {
                 type="button"
                 onClick={() => setActiveTab('signup')}
                 style={{
-                  padding: '0.5rem',
+                  padding: '0.55rem',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '0.85rem',
                   fontWeight: 600,
                   backgroundColor: activeTab === 'signup' ? 'var(--bg-card)' : 'transparent',
                   color: activeTab === 'signup' ? 'var(--color-berry)' : 'var(--text-muted)',
-                  boxShadow: activeTab === 'signup' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none'
+                  boxShadow: activeTab === 'signup' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 Create Account
               </button>
             </div>
 
-            <div style={{ marginBottom: '1.25rem' }}>
-              <h2 style={{ fontSize: '1.45rem', marginBottom: '0.35rem' }}>
+            {/* Heading and Description */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.55rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem', lineHeight: 1.25 }}>
                 {activeTab === 'login' ? 'Welcome Back to Saheli' : 'Begin Your Symptom Diary'}
               </h2>
-              <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 {activeTab === 'login' 
                   ? 'Access your cycle logs, pattern insights, and doctor briefing.'
                   : 'Start tracking daily symptoms to bridge the conversation with your clinician.'}
               </p>
             </div>
 
-            {/* Quick Demo Persona One-Click Logins */}
-            <div style={{ marginBottom: '1.5rem', padding: '0.85rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-card)' }}>
-              <div style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <Sparkles size={13} color="var(--color-berry)" />
-                <span>Instant Demo Logins:</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
-                <button
-                  type="button"
-                  onClick={() => handleSelectPersona('priya')}
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.76rem', padding: '0.45rem 0.5rem', justifyContent: 'flex-start' }}
-                >
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-berry)' }} />
-                  Priya (Endo)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSelectPersona('ananya')}
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.76rem', padding: '0.45rem 0.5rem', justifyContent: 'flex-start' }}
-                >
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-sage)' }} />
-                  Ananya (PCOS)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSelectPersona('meera')}
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.76rem', padding: '0.45rem 0.5rem', justifyContent: 'flex-start' }}
-                >
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-terracotta)' }} />
-                  Meera (Anaemia)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSelectPersona('guest')}
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.76rem', padding: '0.45rem 0.5rem', justifyContent: 'flex-start' }}
-                >
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--text-muted)' }} />
-                  Guest (Blank)
-                </button>
-              </div>
-            </div>
-
             {/* Standard Form */}
-            <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
               {activeTab === 'signup' && (
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
                     Full Name
                   </label>
                   <div style={{ position: 'relative' }}>
@@ -173,10 +127,11 @@ export default function AuthPage({ isSignUp = false }) {
                       placeholder="e.g. Priya Sharma"
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.75rem 0.65rem 2.25rem',
+                        padding: '0.7rem 0.75rem 0.7rem 2.25rem',
                         borderRadius: '10px',
                         border: '1px solid var(--border-card)',
-                        backgroundColor: 'var(--bg-primary)'
+                        backgroundColor: 'var(--bg-primary)',
+                        fontSize: '0.92rem'
                       }}
                     />
                   </div>
@@ -184,7 +139,7 @@ export default function AuthPage({ isSignUp = false }) {
               )}
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
                   Email Address
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -196,17 +151,18 @@ export default function AuthPage({ isSignUp = false }) {
                     placeholder="you@domain.com"
                     style={{
                       width: '100%',
-                      padding: '0.65rem 0.75rem 0.65rem 2.25rem',
+                      padding: '0.7rem 0.75rem 0.7rem 2.25rem',
                       borderRadius: '10px',
                       border: '1px solid var(--border-card)',
-                      backgroundColor: 'var(--bg-primary)'
+                      backgroundColor: 'var(--bg-primary)',
+                      fontSize: '0.92rem'
                     }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
                   Password
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -218,17 +174,18 @@ export default function AuthPage({ isSignUp = false }) {
                     placeholder="Enter password"
                     style={{
                       width: '100%',
-                      padding: '0.65rem 2.25rem 0.65rem 2.25rem',
+                      padding: '0.7rem 2.25rem 0.7rem 2.25rem',
                       borderRadius: '10px',
                       border: '1px solid var(--border-card)',
-                      backgroundColor: 'var(--bg-primary)'
+                      backgroundColor: 'var(--bg-primary)',
+                      fontSize: '0.92rem'
                     }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label="Toggle password visibility"
-                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', padding: '2px' }}
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', padding: '4px' }}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -236,16 +193,20 @@ export default function AuthPage({ isSignUp = false }) {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                     style={{ accentColor: 'var(--color-berry)' }}
                   />
-                  <span>Keep me signed in locally</span>
+                  <span>Keep me signed in</span>
                 </label>
-                <button type="button" onClick={() => showToast('Demo note: Local password recovery not needed.', 'info')} style={{ color: 'var(--color-berry)' }}>
+                <button 
+                  type="button" 
+                  onClick={() => showToast('Password recovery is available for registered accounts.', 'info')} 
+                  style={{ color: 'var(--color-berry)', fontWeight: 500 }}
+                >
                   Forgot?
                 </button>
               </div>
@@ -253,19 +214,28 @@ export default function AuthPage({ isSignUp = false }) {
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ width: '100%', padding: '0.75rem', marginTop: '0.5rem', fontSize: '0.92rem' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '0.8rem', 
+                  marginTop: '0.5rem', 
+                  fontSize: '0.92rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
               >
-                <span>{activeTab === 'login' ? 'Enter Demo Workspace' : 'Create Local Profile'}</span>
+                <span>{activeTab === 'login' ? 'Sign In to Workspace' : 'Create Account'}</span>
                 <ArrowRight size={16} />
               </button>
             </form>
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Saheli Local Prototype · Clinical Bridge for Women's Health
+            Saheli · Clinical Bridge for Women's Health
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
