@@ -6,29 +6,44 @@ import FunctionalImpact from '../components/checkin/FunctionalImpact';
 import SymptomChipGroup from '../components/checkin/SymptomChipGroup';
 import RatingInput from '../components/checkin/RatingInput';
 import MiniCalendar from '../components/checkin/MiniCalendar';
-import { 
-  Calendar as CalendarIcon, 
-  Save, 
-  Trash2, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Loader2 
+import {
+  Calendar as CalendarIcon,
+  Save,
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+
+// Validates a real calendar date string in YYYY-MM-DD format
+function isValidDateStr(dateStr) {
+  if (typeof dateStr !== 'string') return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+  const [year, month, day] = dateStr.split('-').map(Number);
+  if (year < 1900 || year > 2100 || month < 1 || month > 12 || day < 1) return false;
+  const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+  const daysInMonths = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return day <= daysInMonths[month - 1];
+}
 
 export default function DailyCheckinPage() {
-  const { 
-    logs, 
-    todayKey, 
-    currentProfile, 
-    saveEntry, 
-    isSavingEntry, 
-    deleteEntry, 
-    getCycleDayInfo 
+  const {
+    logs,
+    todayKey,
+    currentProfile,
+    saveEntry,
+    isSavingEntry,
+    deleteEntry,
+    getCycleDayInfo
   } = useApp();
 
   // Selected date defaults to today
-  const [selectedDate, setSelectedDate] = useState(todayKey);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const dateParam = searchParams.get('date');
+
+  // Selected date is derived from validated URL query param, defaulting to todayKey
+  const selectedDate = (dateParam && isValidDateStr(dateParam)) ? dateParam : todayKey;
 
   // Form fields
   const [bleeding, setBleeding] = useState('None');
@@ -96,14 +111,14 @@ export default function DailyCheckinPage() {
       (existingEntry.notes || '').trim() !== notes.trim()
     );
   }, [
-    existingEntry, 
-    bleeding, 
-    painScore, 
-    hasFunctionalImpact, 
-    impactTypes, 
-    selectedSymptoms, 
-    energyRating, 
-    moodRating, 
+    existingEntry,
+    bleeding,
+    painScore,
+    hasFunctionalImpact,
+    impactTypes,
+    selectedSymptoms,
+    energyRating,
+    moodRating,
     notes
   ]);
 
@@ -112,18 +127,20 @@ export default function DailyCheckinPage() {
 
   // Safe date selection with unsaved changes guard
   const handleRequestDateChange = (newDate) => {
-    if (newDate === selectedDate) return;
+    if (!newDate || newDate === selectedDate || !isValidDateStr(newDate)) return;
     if (isDirty) {
       setPendingDateSwitch(newDate);
       setShowUnsavedModal(true);
     } else {
-      setSelectedDate(newDate);
+      setSearchParams({ date: newDate });
     }
   };
 
   const handleConfirmDiscard = () => {
     if (pendingDateSwitch) {
-      setSelectedDate(pendingDateSwitch);
+      if (isValidDateStr(pendingDateSwitch)) {
+        setSearchParams({ date: pendingDateSwitch });
+      }
       setPendingDateSwitch(null);
     }
     setShowUnsavedModal(false);
@@ -289,15 +306,15 @@ export default function DailyCheckinPage() {
 
         {/* Success Alert Banner */}
         {saveSuccessMessage && (
-          <div 
+          <div
             role="status"
-            style={{ 
-              marginTop: '1rem', 
-              backgroundColor: 'var(--color-sage-light)', 
-              border: '1px solid var(--color-sage-border)', 
-              borderRadius: '8px', 
-              padding: '0.65rem 1rem', 
-              fontSize: '0.85rem', 
+            style={{
+              marginTop: '1rem',
+              backgroundColor: 'var(--color-sage-light)',
+              border: '1px solid var(--color-sage-border)',
+              borderRadius: '8px',
+              padding: '0.65rem 1rem',
+              fontSize: '0.85rem',
               color: 'var(--color-sage-dark)',
               display: 'flex',
               alignItems: 'center',
@@ -312,31 +329,31 @@ export default function DailyCheckinPage() {
 
       {/* Main Responsive Grid Layout */}
       <div className="checkin-layout-grid">
-        
+
         {/* Main Form Pane */}
         <div className="checkin-form-pane">
           <form onSubmit={handleSave} className="saheli-card" style={{ padding: '2rem' }}>
-            
+
             {/* Bleeding Selection */}
-            <BleedingSelector 
-              value={bleeding} 
-              onChange={setBleeding} 
+            <BleedingSelector
+              value={bleeding}
+              onChange={setBleeding}
               disabled={isSavingEntry}
             />
 
             <div style={{ height: '1px', backgroundColor: 'var(--border-card)', margin: '1.5rem 0' }} />
 
             {/* Pain Severity Scale 0-10 */}
-            <PainSlider 
-              value={painScore} 
-              onChange={setPainScore} 
+            <PainSlider
+              value={painScore}
+              onChange={setPainScore}
               disabled={isSavingEntry}
             />
 
             <div style={{ height: '1px', backgroundColor: 'var(--border-card)', margin: '1.5rem 0' }} />
 
             {/* Functional Impact Toggle & Multi-select */}
-            <FunctionalImpact 
+            <FunctionalImpact
               hasImpact={hasFunctionalImpact}
               onToggleImpact={setHasFunctionalImpact}
               selectedTypes={impactTypes}
@@ -347,7 +364,7 @@ export default function DailyCheckinPage() {
             <div style={{ height: '1px', backgroundColor: 'var(--border-card)', margin: '1.5rem 0' }} />
 
             {/* Grouped Symptom Chips */}
-            <SymptomChipGroup 
+            <SymptomChipGroup
               selectedSymptoms={selectedSymptoms}
               onToggleSymptom={handleToggleSymptom}
               disabled={isSavingEntry}
@@ -357,14 +374,14 @@ export default function DailyCheckinPage() {
 
             {/* Energy and Mood Ratings */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
-              <RatingInput 
+              <RatingInput
                 label="Vitality & Stamina"
                 value={energyRating}
                 onChange={setEnergyRating}
                 type="energy"
                 disabled={isSavingEntry}
               />
-              <RatingInput 
+              <RatingInput
                 label="Mood & Neurohormonal State"
                 value={moodRating}
                 onChange={setMoodRating}
@@ -378,7 +395,7 @@ export default function DailyCheckinPage() {
             {/* Optional Notes */}
             <div style={{ marginBottom: '1.75rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                <label 
+                <label
                   htmlFor="checkin-notes"
                   style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}
                 >
@@ -454,9 +471,9 @@ export default function DailyCheckinPage() {
 
         {/* Sidebar Pane (Mini Calendar & Clinical Advice) */}
         <div className="checkin-sidebar-pane">
-          
+
           {/* Mini Calendar of Logged Dates */}
-          <MiniCalendar 
+          <MiniCalendar
             selectedDate={selectedDate}
             onSelectDate={handleRequestDateChange}
             logs={logs}
