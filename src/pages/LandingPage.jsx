@@ -14,6 +14,7 @@ import {
   Printer
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import BrandLogo from '../components/common/BrandLogo';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -193,33 +194,8 @@ export default function LandingPage() {
       >
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           
-          {/* Logo & Separate Serif Wordmark */}
-          <Link 
-            to="/" 
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }} 
-            aria-label="Saheli Home"
-          >
-            <img 
-              src="/logo.png" 
-              alt="Saheli Logo" 
-              style={{ 
-                height: '38px', 
-                width: 'auto', 
-                objectFit: 'contain',
-                display: 'block'
-              }} 
-            />
-            <span style={{ 
-              fontFamily: 'var(--font-serif)', 
-              fontSize: '1.5rem', 
-              fontWeight: 600, 
-              color: 'var(--color-berry)', 
-              letterSpacing: '-0.015em',
-              lineHeight: 1
-            }}>
-              Saheli
-            </span>
-          </Link>
+          {/* Brand Logo & Wordmark */}
+          <BrandLogo to="/" size="md" />
 
           {/* Minimal Navigation Links: Features, How It Works, Privacy, Sign In, Get Started */}
           <nav className="landing-nav-links">
@@ -894,11 +870,7 @@ export default function LandingPage() {
             {/* Col 1: Brand & Logo */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-                <img 
-                  src="/logo.png" 
-                  alt="Logo" 
-                  style={{ height: '44px', width: 'auto', objectFit: 'contain', display: 'block' }} 
-                />
+                <BrandLogo to="/" size="md" />
               </div>
               <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '300px' }}>
                 Symptom-to-Clinician Bridge for Women's Health. Converting daily symptom logs into cycle-synchronized clinical evidence for productive consultations.

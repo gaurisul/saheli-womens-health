@@ -12,6 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import BrandLogo from './BrandLogo';
 
 export default function Sidebar() {
   const { currentProfile, profileId, isMobileNavDrawerOpen, setIsMobileNavDrawerOpen } = useApp();
@@ -57,26 +58,11 @@ export default function Sidebar() {
     >
       {/* Brand Logo & Mobile Close */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-card)', paddingBottom: '1rem' }}>
-        <Link 
+        <BrandLogo 
           to="/" 
           onClick={handleNavClick}
-          style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center',
-            textDecoration: 'none'
-          }}
-        >
-          <img 
-            src="/logo.png" 
-            alt="Logo" 
-            style={{ 
-              height: '52px', 
-              width: 'auto', 
-              objectFit: 'contain',
-              display: 'block'
-            }} 
-          />
-        </Link>
+          size="sidebar"
+        />
 
         {/* Mobile Close Button */}
         <button

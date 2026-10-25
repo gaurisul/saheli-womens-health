@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { 
   ShieldAlert, 
   HelpCircle, 
-  PlusCircle,
-  Menu
+  PlusCircle, 
+  Menu 
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import BrandLogo from './BrandLogo';
 
 export default function Navbar() {
   const { 
@@ -37,8 +38,8 @@ export default function Navbar() {
         .navbar-mobile-toggle {
           display: none;
         }
-        .navbar-brand-desktop {
-          display: flex;
+        .navbar-brand-mobile {
+          display: none;
         }
         .navbar-btn-text {
           display: inline;
@@ -50,16 +51,24 @@ export default function Navbar() {
           .navbar-mobile-toggle {
             display: inline-flex !important;
           }
-          .navbar-brand-desktop {
-            display: none !important;
+          .navbar-brand-mobile {
+            display: inline-flex !important;
+            align-items: center;
           }
           .navbar-btn-text {
             display: none !important;
           }
         }
+        @media (max-width: 480px) {
+          .navbar-persona-select select {
+            max-width: 120px !important;
+            font-size: 0.72rem !important;
+            padding: 0.35rem 0.5rem !important;
+          }
+        }
       `}</style>
 
-      {/* Left Area: Mobile Drawer Toggle + Brand */}
+      {/* Left Area: Mobile Drawer Toggle + Brand (displayed on mobile header; desktop brand is in the sidebar) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <button
           type="button"
@@ -77,26 +86,9 @@ export default function Navbar() {
           <Menu size={20} />
         </button>
 
-        <Link 
-          to="/" 
-          style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center',
-            textDecoration: 'none'
-          }}
-          aria-label="Home"
-        >
-          <img 
-            src="/logo.png" 
-            alt="Logo" 
-            style={{ 
-              height: '38px', 
-              width: 'auto', 
-              objectFit: 'contain',
-              display: 'block' 
-            }} 
-          />
-        </Link>
+        <div className="navbar-brand-mobile">
+          <BrandLogo to="/" size="sm" />
+        </div>
       </div>
 
       {/* Right controls */}

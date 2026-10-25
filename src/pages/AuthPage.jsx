@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail, User, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import BrandLogo from '../components/common/BrandLogo';
 
 export default function AuthPage({ isSignUp = false }) {
   const [activeTab, setActiveTab] = useState(isSignUp ? 'signup' : 'login');
@@ -38,18 +39,7 @@ export default function AuthPage({ isSignUp = false }) {
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid var(--border-card)', backgroundColor: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
-          <img 
-            src="/logo.png" 
-            alt="Logo" 
-            style={{ 
-              height: '46px', 
-              width: 'auto', 
-              objectFit: 'contain',
-              display: 'block' 
-            }} 
-          />
-        </Link>
+        <BrandLogo to="/" size="md" />
         <Link to="/dashboard" className="btn btn-outline" style={{ fontSize: '0.8rem' }}>
           Skip to Dashboard →
         </Link>
